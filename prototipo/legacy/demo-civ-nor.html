@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FBR · Replay táctico — Côte d'Ivoire 1–2 Noruega</title>
+<style>
+  :root{
+    --bg:#0b1210;--panel:#111a15;--panel2:#0e1611;--surface:#16211b;--line:#26332c;--text:#e9f0ea;--text2:#8ba095;
+    --accent:#e6b23a;--accent-d:#b98a1f;--blue:#e6b23a;--blue-soft:#241d10;
+    --ci:#e5333b;--ci-d:#8f1f24;--ci-gk:#2fae63;
+    --no:#f5f7f9;--no-d:#aeb6bf;--no-gk:#ffce2b;
+    --pitch1:#17623b;--pitch2:#134f30;--propuesta:#e6b23a;--accent2:#54d6c8;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:#070c0a;color:var(--text);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;padding:22px 14px 48px}
+  .wrap{max-width:780px;margin:0 auto}
+  .banner{font-size:12.5px;color:var(--text2);margin:0 4px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .banner b{color:var(--text)}
+  .banner .tag{background:var(--blue-soft);color:var(--accent);font-weight:600;padding:2px 8px;border-radius:10px;font-size:11px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  /* barra de identidad propia del visor */
+  .appbar{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0f1712,#0c130f)}
+  .appbar .mark{font:700 12.5px var(--mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+  .appbar .mark b{color:var(--text)}
+  .appbar .tag{margin-left:auto;font:600 10px var(--mono);letter-spacing:.12em;color:var(--text2);border:1px solid var(--line);border-radius:999px;padding:3px 9px;text-transform:uppercase}
+
+  .meta{padding:14px 18px 4px;font-size:12.5px;color:var(--text2)}
+  .meta .ft{float:right;color:var(--accent);font-weight:600}
+  .score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:6px 18px 4px;gap:8px}
+  .team{display:flex;align-items:center;gap:12px}
+  .team.right{justify-content:flex-end;flex-direction:row-reverse;text-align:right}
+  .flag{width:34px;height:24px;border-radius:3px;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;overflow:hidden}
+  .team .name{font-size:16px;font-weight:500;line-height:1.1}
+  .team .sub{font-size:11.5px;color:var(--text2)}
+  .nums{display:flex;align-items:center;gap:14px;font-weight:700;font-size:30px;font-family:var(--mono)}
+  .nums .st{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.4px;text-align:center;min-width:48px}
+  .nums .st.added{color:#111;background:#f9ab00;border-radius:9px;padding:2px 6px;min-width:0}
+  .poss-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:6px;vertical-align:middle;opacity:0;transition:opacity .2s;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+  .scorers{display:grid;grid-template-columns:1fr auto 1fr;font-size:11.5px;color:var(--text2);padding:2px 18px 14px;gap:8px;border-bottom:1px solid var(--line)}
+  .scorers .r{text-align:right}
+
+  .stage{padding:10px 14px 4px}
+  .orient{display:flex;align-items:center;gap:6px;justify-content:flex-end;font-size:12px;color:var(--text2);padding:2px 2px 8px}
+  .ob{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;color:var(--text2);font-family:var(--mono);letter-spacing:.04em}
+  .ob.active{background:var(--accent);color:#0c130f;border-color:var(--accent)}
+  .field-frame{position:relative;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+  .field-frame.vert{max-width:544px;margin-left:auto;margin-right:auto}
+  .hydra{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    background:rgba(6,40,80,.72);backdrop-filter:blur(2px);color:#fff;text-align:center;z-index:5;animation:hyIn .25s ease}
+  @keyframes hyIn{from{opacity:0}to{opacity:1}}
+  .hydra .hy-i{font-size:40px;line-height:1}
+  .hydra .hy-t{font:700 18px var(--sans)}
+  .hydra .hy-s{font:500 13px var(--sans);color:#cfe0f5}
+  .hydra .hy-c{margin-top:6px;font:800 22px var(--sans);width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5)}
+  .form-intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3px 6px;pointer-events:none;opacity:0;transition:opacity .35s ease;z-index:7}
+  .fi-row{display:flex;align-items:center;gap:6px;background:rgba(9,26,17,.82);color:#fff;padding:3px 10px;border-radius:14px;font-size:12px;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+  .fi-row b{font-size:12.5px;letter-spacing:.3px}
+  .fi-dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.55)}
+  svg.pitch{display:block;width:100%;height:auto}
+  .pname{font:600 14px var(--sans);fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.5);stroke-width:2px;stroke-linejoin:round;pointer-events:none}
+  .pnum{font:800 16px var(--sans);pointer-events:none}
+  .pstat{font:700 12px var(--sans);fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:2.4px;stroke-linejoin:round;pointer-events:none}
+  .pstat.club{font:600 10.5px var(--sans)}
+  .ring{fill:none;stroke:#fff;stroke-width:2.5;opacity:.95}
+  .caption{font-size:12px;color:var(--text2);padding:8px 4px 2px;text-align:center}
+  .caption b{color:var(--text)}
+
+  .controls{padding:6px 14px 6px}
+  .ctl-row{display:flex;align-items:center;gap:12px}
+  .play{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;background:var(--accent);color:#0c130f;flex:0 0 auto;display:grid;place-items:center;box-shadow:0 0 0 4px rgba(230,178,58,.14)}
+  .play:hover{background:#f0c25a} .play svg{width:20px;height:20px;fill:#0c130f}
+  .clock{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;min-width:64px;font-family:var(--mono);color:var(--text)}
+  .track{position:relative;flex:1;height:34px;display:flex;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--blue) 0%,var(--blue) var(--p,0%),#dfe1e5 var(--p,0%),#dfe1e5 100%);outline:none;margin:0;z-index:3}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.35);border:2px solid #fff}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;border:2px solid #fff}
+  .markers{position:absolute;left:9px;right:9px;top:0;bottom:0;pointer-events:none;z-index:5}
+  .mk{position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;line-height:1;padding:9px 3px}
+  .mk .dot{display:block;width:10px;height:10px;border-radius:50%;border:2px solid #fff;margin:0 auto;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+  .mk.ht .htline{display:block;width:2px;height:15px;margin:0 auto;background:#fff;border-radius:1px;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+  .mk[data-kind=goal] .dot{background:#2aa15a}
+  .mk[data-kind=sub] .dot{background:var(--accent)}
+  .mk[data-kind=card] .dot{background:#f9ab00;border-radius:2px}
+  .mk[data-kind=shot] .dot{background:#fff;border-color:#f29900}
+  .mk[data-kind=break] .dot{background:#25a9e0;border-color:#fff}
+  .tip{position:absolute;bottom:150%;left:50%;transform:translateX(-50%);background:#202124;color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;white-space:nowrap;opacity:0;transition:opacity .12s;pointer-events:none;z-index:9}
+  .mk:hover .tip{opacity:1}
+  .ctl-row2{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .speeds{display:flex;gap:4px}
+  .spd{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;color:var(--text2);font-family:var(--mono)}
+  .spd.active{background:var(--accent);color:#0c130f;border-color:var(--accent)}
+  .legend{display:flex;gap:16px;margin-left:auto;align-items:center;font-size:12px;color:var(--text2)}
+  .legend .sw{display:inline-flex;align-items:center;gap:6px} .legend i{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.22)}
+  .reset{font-size:12px;border:none;background:none;color:var(--blue);cursor:pointer;padding:4px 6px}
+
+  .iconlegend{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:11.5px;color:var(--text2);background:var(--surface);margin:10px 14px;padding:10px 14px;border-radius:8px}
+  .iconlegend .lg{font-family:inherit;font-size:11.5px;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:4px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+  .iconlegend .lg:hover{border-color:var(--text2)}
+  .iconlegend .lghint{color:var(--text2);margin-left:4px}
+  .venue{font-size:11.5px;color:var(--text2);padding:10px 18px 16px;border-top:1px solid var(--line)}
+  .possbar{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px}
+  .possbar .pl{font-weight:600;min-width:36px;text-align:center}
+  .possbar .pl.ci{color:var(--ci-d)} .possbar .pl.no{color:var(--text2)}
+  .possbar .ptrack{flex:1;height:7px;border-radius:6px;background:var(--no-d);overflow:hidden}
+  .possbar .pfill{height:100%;background:var(--ci);width:50%;transition:width .12s linear}
+  .selhint{font-size:11.5px;color:var(--text2);margin-top:10px}
+  .editor{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+  .ed-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .ed-toggle{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;color:var(--text);font-family:var(--mono)}
+  .ed-toggle.on{background:var(--accent);color:#0c130f;border-color:var(--accent)}
+  .ed-chk{font-size:12px;color:var(--text2);display:inline-flex;align-items:center;gap:5px}
+  .ed-panel{background:var(--surface);border-radius:8px;padding:10px 12px;margin-top:4px}
+  .ed-panel select{font-size:12.5px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);max-width:210px}
+  .ed-info{font-size:12px;color:var(--text2)}
+  .ed-hint{font-size:11.5px;color:var(--text2);margin:6px 0 8px;line-height:1.45}
+  .ed-btn{font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;color:var(--text);font-family:var(--mono)}
+  .ed-btn:hover{border-color:var(--text2)}
+  .kfmarks{position:absolute;left:9px;right:9px;top:0;bottom:0;pointer-events:none;z-index:6}
+  .kf{position:absolute;top:50%;transform:translate(-50%,-50%);width:7px;height:15px;border-radius:2px;background:var(--accent);border:1.5px solid var(--panel);pointer-events:auto;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .foot{font-size:11.5px;color:var(--text2);margin:14px 6px 0;line-height:1.55}
+  .foot b{color:var(--text)}
+  @media (max-width:520px){.legend{width:100%;margin:8px 0 0;justify-content:center}.nums{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="appbar"><span class="mark">FBR&nbsp;<b>Replay</b></span><span class="tag">Táctico · 2D</span></div>
+    <div class="meta">FIFA World Cup 2026™ · Octavos (Round of 32) · <span class="ft" id="metaState" title="Final: el partido terminó (los 90 minutos más el descuento ya se jugaron)">Final</span></div>
+    <div class="score">
+      <div class="team">
+        <div class="flag" id="flagCI"></div>
+        <div><div class="name" id="teamCIname">Côte d'Ivoire</div><div class="sub">CIV · 4-1-2-3</div></div>
+      </div>
+      <div class="nums">
+        <span id="scoreCI">0</span><div class="st" id="status">FT</div><span id="scoreNO">0</span>
+        <span class="poss-dot" id="possDot"></span>
+      </div>
+      <div class="team right">
+        <div class="flag" id="flagNO"></div>
+        <div><div class="name" id="teamNOname">Noruega</div><div class="sub">NOR · 4-3-3</div></div>
+      </div>
+    </div>
+    <div class="scorers">
+      <div>Amad Diallo 74'</div><div>⚽</div>
+      <div class="r">Antonio Nusa 39'<br>Erling Haaland 86'</div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="orient" id="lang">
+        <button class="ob active" data-l="es">ES</button>
+        <button class="ob" data-l="en">EN</button>
+        <button class="ob" data-l="fr">FR</button>
+        <button class="ob" data-l="pt">PT</button>
+        <button class="ob" data-l="de">DE</button>
+        <button class="ob" data-l="it">IT</button>
+      </div>
+      <div class="orient" id="orient">
+        <span>Orientación</span>
+        <button class="ob active" data-o="vertical">Vertical</button>
+        <button class="ob" data-o="horizontal">Horizontal</button>
+      </div>
+      <div class="field-frame vert" id="field">
+        <svg class="pitch" id="pitch" viewBox="0 0 680 1050" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="form-intro" id="formIntro"></div>
+        <div class="hydra" id="hydra" style="display:none"></div>
+      </div>
+      <div class="caption" id="caption"></div>
+    </div>
+
+    <div class="controls" id="controls">
+      <div class="ctl-row">
+        <button class="play" id="playBtn" aria-label="Reproducir">
+          <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="clock"><span id="clock">00:00</span></div>
+        <div class="track">
+          <input type="range" id="seek" min="0" max="6060" value="0" step="0.25" aria-label="Línea de tiempo del partido">
+          <div class="markers" id="markers"></div>
+          <div class="kfmarks" id="kfmarks"></div>
+        </div>
+      </div>
+      <div class="ctl-row2">
+        <span style="font-size:12px;color:var(--text2)">Velocidad</span>
+        <div class="speeds" id="speeds">
+          <button class="spd" data-s="0.5">0.5×</button><button class="spd active" data-s="1">1×</button>
+          <button class="spd" data-s="2">2×</button><button class="spd" data-s="4">4×</button>
+        </div>
+        <button class="reset" id="resetBtn">↺ Reiniciar</button>
+        <div class="legend">
+          <span class="sw"><i style="background:var(--ci)"></i> CIV</span>
+          <span class="sw"><i style="background:var(--no)"></i> NOR</span>
+          <span class="sw"><i style="background:#fff;box-shadow:0 0 0 1px #999"></i> Balón</span>
+        </div>
+      </div>
+      <div class="possbar">
+        <span style="color:var(--text2)">Posesión</span>
+        <span class="pl ci" id="possCI">50%</span>
+        <div class="ptrack"><div class="pfill" id="possFill"></div></div>
+        <span class="pl no" id="possNO">50%</span>
+      </div>
+      <div class="selhint">Toca un jugador, un árbitro o el balón en la cancha para ver su recorrido (vuelve a tocarlo para quitarlo).</div>
+      <div class="editor" id="editor">
+        <div class="ed-row">
+          <button class="ed-toggle" id="edToggle">✎ Editar posiciones (admin)</button>
+          <label class="ed-chk"><input type="checkbox" id="edRefs"> Mostrar árbitros</label>
+        </div>
+        <div class="ed-panel" id="edPanel" style="display:none">
+          <div class="ed-row">
+            <span style="font-size:12px;color:var(--text2)">Actor</span>
+            <select id="edActor"></select>
+            <span class="ed-info" id="edInfo">—</span>
+          </div>
+          <div class="ed-row">
+            <span style="font-size:12px;color:var(--text2)">Paso</span>
+            <div class="speeds" id="edStep">
+              <button class="spd active" data-g="1">1 s</button>
+              <button class="spd" data-g="0.5">0,5 s</button>
+              <button class="spd" data-g="0.25">0,25 s</button>
+            </div>
+            <button class="ed-btn" id="edPrev">◀</button>
+            <button class="ed-btn" id="edNext">▶</button>
+            <button class="ed-btn" id="edPrevKf">◀ punto</button>
+            <button class="ed-btn" id="edNextKf">punto ▶</button>
+            <span class="ed-info" id="edTime">00:00.00</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--text2);margin:2px 0 8px"><span id="edCoord"></span></div>
+          <div class="ed-hint">No marques cada segundo: coloca solo <b>puntos clave</b> (mueve el tiempo y haz clic en la cancha). Entre tus puntos la simulación interpola, y fuera de tu primer/último punto ese actor sigue la simulación base. Así puedes editar solo una jugada (p. ej. un gol) sin tocar el resto.</div>
+          <div class="ed-row">
+            <button class="ed-btn" id="edUndo">Quitar último punto</button>
+            <button class="ed-btn" id="edClear">Limpiar actor</button>
+            <button class="ed-btn" id="edClearAll">Limpiar todo</button>
+            <button class="ed-btn" id="edExport">Exportar FBR</button>
+            <label class="ed-btn" style="cursor:pointer">Importar FBR<input type="file" id="edImport" accept="application/json,.json" style="display:none"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="iconlegend" id="iconlegend">
+      <button class="lg" data-kind="goal">🟢 Gol</button>
+      <button class="lg" data-kind="card">🟡 Amarilla</button>
+      <button class="lg" data-kind="sub">🔵 Cambio</button>
+      <button class="lg" data-kind="shot">⚪ Remate</button>
+      <button class="lg" data-kind="break">💧 Hidratación</button>
+      <span class="lghint">Toca un botón o un punto de la barra para saltar a la jugada</span>
+    </div>
+
+
+    <div class="venue">Estadio: Dallas Stadium (AT&amp;T Stadium, Arlington) · Partido 78 · DT: E. Faé (CIV) — S. Solbakken (NOR)</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const TMAX=6060, HALF=2940, $=s=>document.querySelector(s);
+  let orient='vertical';
+
+  $("#flagCI").innerHTML='<svg viewBox="0 0 30 20" width="34" height="24"><rect width="10" height="20" fill="#ff7900"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#1f9d55"/></svg>';
+  $("#flagNO").innerHTML='<svg viewBox="0 0 30 20" width="34" height="24"><rect width="30" height="20" fill="#c8102e"/><rect x="8" width="6" height="20" fill="#fff"/><rect y="7" width="30" height="6" fill="#fff"/><rect x="9.5" width="3" height="20" fill="#003087"/><rect y="8.5" width="30" height="3" fill="#003087"/></svg>';
+
+  /* slots: base[length 0..1 (0=CIV goal,1=NOR goal), width 0..1]; CIV attacks toward 1, NOR toward 0 */
+  const CI_SLOTS=[
+    {b:[.05,.50],s:{num:1,name:'Fofana'}},
+    {b:[.20,.84],s:{num:3,name:'Konan'},sub:{num:24,name:'Touré',min:92,age:20,club:'Hoffenheim'}},{b:[.20,.62],s:{num:20,name:'Agbadou'}},
+    {b:[.20,.38],s:{num:7,name:'Kossounou'}},{b:[.20,.16],s:{num:17,name:'Doué'}},
+    {b:[.36,.50],s:{num:18,name:'Sangaré'}},
+    {b:[.50,.66],s:{num:8,name:'Kessié'}},
+    {b:[.50,.34],s:{num:26,name:'Inao Oulaï'},sub:{num:12,name:'Wahi',min:60,age:23,club:'Niza'}},
+    {b:[.68,.80],s:{num:11,name:'Diomandé'},sub:{num:22,name:'Guessand',min:92,age:24,club:'Crystal Palace'}},
+    {b:[.68,.50],s:{num:9,name:'Bonny'},sub:{num:15,name:'Amad Diallo',min:60,age:23,club:'Manchester United'}},
+    {b:[.68,.20],s:{num:19,name:'Pépé'},sub:{num:14,name:'Diakité',min:87,age:22,club:'Cercle Brujas'}}
+  ];
+  const NO_SLOTS=[
+    {b:[.95,.50],s:{num:1,name:'Nyland'}},
+    {b:[.80,.84],s:{num:5,name:'Møller Wolfe'}},{b:[.80,.62],s:{num:17,name:'Heggem'}},
+    {b:[.80,.38],s:{num:3,name:'Ajer'}},{b:[.80,.16],s:{num:16,name:'Holmgren P.'},sub:{num:14,name:'Aursnes',min:83,age:30,club:'Benfica'}},
+    {b:[.63,.52],s:{num:8,name:'Berge'}},
+    {b:[.63,.76],s:{num:6,name:'Berg'}},
+    {b:[.60,.28],s:{num:10,name:'Ødegaard'}},
+    {b:[.36,.20],s:{num:7,name:'Sørloth'},sub:{num:22,name:'Bobb',min:71,age:22,club:'Fulham'}},
+    {b:[.36,.50],s:{num:9,name:'Haaland'}},
+    {b:[.36,.80],s:{num:20,name:'Nusa'},sub:{num:21,name:'Schjelderup',min:71,age:22,club:'Benfica'}}
+  ];
+  const SCORERS={'Nusa':2340,'Amad Diallo':4680,'Haaland':5400};
+  const CARDED ={'Nusa':2760};
+  // Valoraciones y datos por slot (ficha pública del partido). Ajer con desglose completo.
+  const PLAYER_STATS={
+    CI0:{rating:4.5,age:25,club:'Rizespor'}, CI1:{rating:6.4,age:30,club:'Gil Vicente'}, CI2:{rating:6.3,age:29,club:'Beşiktaş'},
+    CI3:{rating:5.9,age:25,club:'Atalanta'}, CI4:{rating:7.1,age:23,club:'Estrasburgo'},
+    CI5:{rating:6.2,age:28,club:'Nottingham Forest'}, CI6:{rating:5.6,age:29,club:'Al-Ahli'}, CI7:{rating:6.7,age:20,club:'Trabzonspor'},
+    CI8:{rating:6.5,age:19,club:'RB Leipzig'}, CI9:{rating:5.4,age:22,club:'Inter'}, CI10:{rating:6.4,age:31,club:'Villarreal'},
+    NO0:{rating:6.8,age:35,club:'Sevilla'}, NO1:{rating:5.1,age:24,club:'Wolverhampton'}, NO2:{rating:6.7,age:27,club:'Bologna'},
+    NO3:{rating:6.5,age:28,club:'Brentford',minutes:90,tackles_won:2,accurate_passes:48,goals:0,fouls:0,assists:0,yellow_cards:0,red_cards:0},
+    NO4:{rating:5.3,age:26,club:'Torino'}, NO5:{rating:5.6,age:28,club:'Fulham'}, NO6:{rating:7.3,age:28,club:'Bodø/Glimt'}, NO7:{rating:5.6,age:27,club:'Arsenal'}, NO8:{rating:5.7,age:30,club:'Atlético Madrid'}, NO9:{rating:7.0,age:25,club:'Manchester City'}, NO10:{rating:6.3,age:21,club:'RB Leipzig'}
+  };
+
+  // Kit real del partido (según la transmisión). CIV rojo · NOR blanco (ambos lisos).
+  const KITS={CI:{shirt:'#e01f26',shorts:'#e01f26',socks:'#e01f26',pattern:'solid',boots:'#111111'},
+              NO:{shirt:'#ffffff',shorts:'#ffffff',socks:'#ffffff',pattern:'solid',boots:'#111111'}};
+  const W=[
+    [0,0.5,0.5,'CI'],[20,0.4,0.44,'CI'],[55,0.3,0.6,'CI'],[95,0.46,0.36,'CI'],[140,0.58,0.54,'CI'],
+    [180,0.5,0.48,'CI'],[230,0.4,0.36,'CI'],[290,0.32,0.58,'CI'],[340,0.42,0.46,'CI'],[410,0.54,0.52,'CI'],
+    [480,0.48,0.4,'CI'],[560,0.4,0.58,'NO'],[640,0.5,0.46,'CI'],[720,0.6,0.54,'CI'],[800,0.5,0.42,'NO'],
+    [880,0.42,0.58,'NO'],[960,0.52,0.5,'CI'],[1040,0.4,0.5,'NO'],[1050,0.2,0.46,'NO'],[1068,0.1,0.42,'NO'],
+    [1080,0.055,0.4,'NO'],[1095,0.32,0.55,'CI'],[1180,0.46,0.48,'CI'],[1280,0.56,0.54,'CI'],[1380,0.48,0.44,'NO'],
+    [1500,0.4,0.58,'NO'],[1620,0.5,0.5,'CI'],[1740,0.58,0.46,'CI'],[1860,0.5,0.54,'NO'],[1980,0.42,0.4,'NO'],
+    [2100,0.34,0.58,'NO'],[2200,0.26,0.46,'NO'],[2280,0.18,0.4,'NO'],[2310,0.1,0.46,'NO'],[2330,0.04,0.42,'NO'],
+    [2340,0.015,0.5,'NO'],[2352,0.5,0.5,'CI'],[2380,0.42,0.44,'CI'],[2460,0.54,0.52,'CI'],[2560,0.48,0.46,'NO'],
+    [2650,0.4,0.58,'NO'],[2700,0.5,0.5,'CI'],[2760,0.42,0.44,'CI'],[2860,0.55,0.54,'CI'],[3220,0.48,0.46,'NO'],
+    [3340,0.4,0.58,'NO'],[3460,0.5,0.5,'CI'],[3580,0.58,0.46,'CI'],[3700,0.5,0.54,'NO'],[3780,0.46,0.5,'CI'],
+    [3860,0.56,0.46,'CI'],[3960,0.48,0.52,'NO'],[4060,0.4,0.4,'NO'],[4170,0.22,0.56,'NO'],[4190,0.12,0.5,'NO'],
+    [4200,0.07,0.58,'NO'],[4212,0.32,0.48,'CI'],[4300,0.46,0.52,'CI'],[4400,0.56,0.48,'CI'],[4440,0.52,0.5,'NO'],
+    [4520,0.44,0.4,'NO'],[4600,0.62,0.5,'CI'],[4620,0.74,0.44,'CI'],[4650,0.88,0.5,'CI'],[4675,0.95,0.46,'CI'],
+    [4680,0.985,0.5,'CI'],[4692,0.5,0.5,'NO'],[4760,0.42,0.44,'NO'],[4860,0.34,0.58,'NO'],[4960,0.46,0.48,'CI'],
+    [5060,0.56,0.54,'CI'],[5160,0.5,0.46,'NO'],[5240,0.4,0.42,'NO'],[5320,0.3,0.56,'NO'],[5340,0.2,0.54,'NO'],
+    [5375,0.1,0.48,'NO'],[5395,0.04,0.52,'NO'],[5400,0.015,0.49,'NO'],[5412,0.5,0.5,'CI'],[5460,0.44,0.46,'CI'],
+    [5560,0.55,0.52,'CI'],[5660,0.48,0.46,'NO'],[5760,0.52,0.5,'CI'],[5800,0.55,0.5,'CI'],[5820,0.52,0.5,'CI'],
+    [5900,0.72,0.48,'CI'],[5970,0.9,0.53,'CI'],[6000,0.955,0.46,'CI'],[6025,0.62,0.5,'NO'],[6060,0.5,0.5,'NO']
+  ];
+  const EVENTS=[
+    {t:1080,kind:'shot',team:'away',actor:'NO9',label:"18' ◖ Ocasión clara de Haaland, fallada (minuto aprox.)"},
+    {t:1320,kind:'break',label:"22' 💧 Pausa de hidratación (3 min)"},
+    {t:2340,kind:'goal',team:'away',actor:'NO10',assist:'NO7',label:"39' ⚽ Nusa (asist. Ødegaard) — Noruega (0-1)"},
+    {t:2760,kind:'card',team:'away',actor:'NO10',card:'yellow',label:"45+1' 🟨 Amonestación: A. Nusa (NOR)"},
+    {t:3840,kind:'sub', team:'home',subs:[{in:'Wahi',out:'Inao Oulaï',slot:'CI7'},{in:'Amad Diallo',out:'Bonny',slot:'CI9'}],label:"60' ⇄ CIV: Wahi por Inao Oulaï y Amad Diallo por Bonny"},
+    {t:4200,kind:'shot',team:'away',actor:'NO8',label:"66' ◖ Ocasión clara de Sørloth, fallada (minuto aprox.)"},
+    {t:4260,kind:'break',label:"67' 💧 Pausa de hidratación (3 min)"},
+    {t:4500,kind:'sub', team:'away',subs:[{in:'Schjelderup',out:'Nusa',slot:'NO10'},{in:'Bobb',out:'Sørloth',slot:'NO8'}],label:"71' ⇄ NOR: Schjelderup por Nusa y Bobb por Sørloth"},
+    {t:4680,kind:'goal',team:'home',actor:'CI9',assist:'CI10',label:"74' ⚽ Amad Diallo — Côte d'Ivoire (1-1)"},
+    {t:5220,kind:'sub', team:'away',subs:[{in:'Aursnes',out:'Holmgren Pedersen',slot:'NO4'}],label:"83' ⇄ NOR: Aursnes por Holmgren Pedersen"},
+    {t:5400,kind:'goal',team:'away',actor:'NO9',assist:'NO6',label:"86' ⚽ Erling Haaland — Noruega (1-2)"},
+    {t:5460,kind:'sub', team:'home',subs:[{in:'Diakité',out:'Pépé',slot:'CI10'}],label:"87' ⇄ CIV: Diakité por Pépé"},
+    {t:5760,kind:'sub', team:'home',subs:[{in:'Guessand',out:'Y. Diomandé',slot:'CI8'},{in:'Touré',out:'Konan',slot:'CI1'}],label:"90+2' ⇄ CIV: Guessand por Y. Diomandé y Touré por Konan"},
+    {t:6000,kind:'shot',team:'home',actor:'CI9',label:"90+6' ◖ Último tiro libre de Amad, atajado por Nyland"}
+  ];
+
+  /* ---- coordinate mapping (length,width 0..1) -> screen, per orientation ---- */
+  const FL=1050, FW=680;            // campo en px (10 px/m)
+  const MLEN=56, MWID=50;           // circundante: detrás de arcos / fuera de banda
+  const fL=MLEN/FL, fW=MWID/FW;     // margen en fracciones de campo
+  function dims(){return orient==='vertical'?[FW+2*MWID, FL+2*MLEN]:[FL+2*MLEN, FW+2*MWID];}
+  function M(l,w){return orient==='vertical'?[MWID+w*FW, MLEN+l*FL]:[MLEN+l*FL, MWID+w*FW];}
+
+  function ballAt(t){
+    if(t<=W[0][0])return{x:W[0][1],y:W[0][2],pos:W[0][3]};
+    const last=W[W.length-1]; if(t>=last[0])return{x:last[1],y:last[2],pos:last[3]};
+    let lo=0,hi=W.length-1;
+    while(lo<hi-1){const m=(lo+hi)>>1; if(W[m][0]<=t)lo=m; else hi=m;}
+    const a=W[lo],b=W[hi],k=(t-a[0])/(b[0]-a[0]);
+    const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    return{x:a[1]+(b[1]-a[1])*e,y:a[2]+(b[2]-a[2])*e,pos:k<.5?a[3]:b[3]};
+  }
+  function scoreAt(t){let ci=0,no=0;for(const k in SCORERS){if(SCORERS[k]<=t){k==='Amad Diallo'?ci++:no++;}}return{ci,no};}
+  const PCI=[0];
+  for(let i=0;i<W.length-1;i++){const a=W[i],b=W[i+1],dur=b[0]-a[0];let add=0;if(a[3]==='CI')add+=dur/2;if(b[3]==='CI')add+=dur/2;PCI.push(PCI[i]+add);}
+  function possCI(t){
+    if(t<=0)return 50;
+    let i=0;while(i<W.length-1 && W[i+1][0]<=t)i++;
+    if(i>=W.length-1)return PCI[W.length-1]/W[W.length-1][0]*100;
+    const a=W[i],b=W[i+1],mid=(a[0]+b[0])/2;let part=0;
+    if(t<=mid){if(a[3]==='CI')part=t-a[0];}
+    else{if(a[3]==='CI')part+=mid-a[0];if(b[3]==='CI')part+=t-mid;}
+    return (PCI[i]+part)/t*100;
+  }
+  function occ(slot,min){return (slot.sub&&min>=slot.sub.min)?slot.sub:slot.s;}
+  const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+  const INTRO=5;   // segundos que se muestra el rótulo de formación
+  const dispMin=t=>t<HALF?t/60:45+(t-HALF)/60;   // minuto mostrado (cuenta los añadidos)
+  function matchTime(t){const pd=n=>String(n).padStart(2,'0');
+    let disp,badge,stop=false;
+    if(t<HALF){
+      if(t>=2700){const a=Math.min(4,Math.ceil((t-2700)/60)); if(a<1){disp='1T 45:00';badge='1T';} else {disp='1T 45+'+a;badge='45+'+a;stop=true;}}
+      else {disp='1T '+pd(Math.floor(t/60))+':'+pd(Math.floor(t%60));badge='1T';}
+    } else {
+      if(t>=5640){const a=Math.min(7,Math.ceil((t-5640)/60)); if(a<1){disp='2T 90:00';badge='2T';} else {disp='2T 90+'+a;badge='90+'+a;stop=true;}}
+      else {const e=t-HALF;disp='2T '+pd(45+Math.floor(e/60))+':'+pd(Math.floor(e%60));badge='2T';}
+    }
+    return {disp,badge,stop};
+  }
+
+  function teamPositions(slots,t,ball){
+    const shift=(ball.x-.5)*.34;
+    return slots.map((sl,i)=>{
+      const ph=t*.02+i*1.7;
+      let x=sl.b[0]+shift+.006*Math.sin(ph);
+      let y=sl.b[1]+(ball.y-.5)*.12+.010*Math.cos(ph*.8+i);
+      return{x:clamp(x,.02,.98),y:clamp(y,.05,.95),gk:i===0,slot:sl};
+    });
+  }
+  function pull(arr,ball,frac,skipGK){
+    let best=-1,bd=1e9;
+    for(let i=0;i<arr.length;i++){if(skipGK&&arr[i].gk)continue;
+      const dx=arr[i].x-ball.x,dy=arr[i].y-ball.y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=i;}}
+    if(best>=0){arr[best].x+=(ball.x-arr[best].x)*frac;arr[best].y+=(ball.y-arr[best].y)*frac;}
+    return best;
+  }
+
+  const NS="http://www.w3.org/2000/svg",pitch=$("#pitch");
+  function el(tag,a){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);return e;}
+  const LN={fill:'none',stroke:'rgba(255,255,255,.72)','stroke-width':2.4};
+  function line2(l0,w0,l1,w1){const a=M(l0,w0),b=M(l1,w1);return el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],...LN});}
+  function rectLW(l0,w0,l1,w1,extra){const a=M(l0,w0),b=M(l1,w1);
+    const o={x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1])};
+    return el('rect',Object.assign(o,extra||LN));}
+  function arc(cl,cw,deg0,deg1){
+    const rl=92/1050,rw=92/680;let d='';
+    for(let i=0;i<=24;i++){const th=(deg0+(deg1-deg0)*i/24)*Math.PI/180;
+      const p=M(cl+rl*Math.cos(th),cw+rw*Math.sin(th));d+=(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)+' ';}
+    return el('path',Object.assign({d},LN));
+  }
+  function dot(l,w,r){const p=M(l,w);return el('circle',{cx:p[0],cy:p[1],r,fill:'rgba(255,255,255,.85)'});}
+
+  function buildPitch(){
+    pitch.innerHTML="";
+    const [VW,VH]=dims();
+    pitch.setAttribute('viewBox','0 0 '+VW+' '+VH);
+    const defs=el('defs',{});
+    const mkShadow=(id,dy,std,op)=>{const f=el('filter',{id,x:'-60%',y:'-60%',width:'220%',height:'220%'});
+      f.appendChild(el('feDropShadow',{dx:0,dy,stdDeviation:std,'flood-color':'#000','flood-opacity':op}));return f;};
+    defs.appendChild(mkShadow('fTok',1.1,0.9,0.18));
+    defs.appendChild(mkShadow('fBall',1.1,0.9,0.32));
+    const kitGrad=(id,k,split)=>{const g=el('linearGradient',{id,x1:0,y1:0,x2:0,y2:1});
+      const s=split||[58,28,14],a=s[0],b=s[0]+s[1];
+      [[0,k.shirt],[a,k.shirt],[a,k.shorts],[b,k.shorts],[b,k.socks],[100,k.socks]].forEach(([o,c])=>g.appendChild(el('stop',{offset:o+'%','stop-color':c})));
+      return g;};
+    defs.appendChild(kitGrad('kitCI',KITS.CI));
+    defs.appendChild(kitGrad('kitNO',KITS.NO));
+    pitch.appendChild(defs);
+    // circundante (zona fuera de la cancha)
+    pitch.appendChild(el('rect',{x:0,y:0,width:VW,height:VH,fill:'#123f26'}));
+    // franjas del campo (inset)
+    const g=el('g',{}),n=11;
+    for(let i=0;i<n;i++)g.appendChild(rectLW(i/n,0,(i+1)/n,1,{fill:i%2?'var(--pitch2)':'var(--pitch1)'}));
+    pitch.appendChild(g);
+    // borde del campo = líneas de banda y de gol
+    pitch.appendChild(rectLW(0,0,1,1));
+    pitch.appendChild(line2(.5,0,.5,1));
+    const c=M(.5,.5);pitch.appendChild(el('circle',Object.assign({cx:c[0],cy:c[1],r:92},LN)));
+    pitch.appendChild(dot(.5,.5,4));
+    // áreas (ancladas a la línea de gol l=0 / l=1)
+    pitch.appendChild(rectLW(0,.205,.157,.795));
+    pitch.appendChild(rectLW(0,.37,.055,.63));
+    pitch.appendChild(rectLW(.843,.205,1,.795));
+    pitch.appendChild(rectLW(.945,.37,1,.63));
+    pitch.appendChild(dot(.105,.5,3.5));pitch.appendChild(dot(.895,.5,3.5));
+    pitch.appendChild(arc(.105,.5,-54,54));
+    pitch.appendChild(arc(.895,.5,126,234));
+    // arcos: marco con red detrás de cada línea de gol
+    function goalNet(l0,l1){const a=M(l0,.44),b=M(l1,.56);
+      const x=Math.min(a[0],b[0]),y=Math.min(a[1],b[1]),w=Math.abs(a[0]-b[0]),h=Math.abs(a[1]-b[1]);
+      const grp=el('g',{});grp.appendChild(el('rect',{x,y,width:w,height:h,fill:'rgba(255,255,255,.06)',stroke:'rgba(255,255,255,.9)','stroke-width':2.4}));
+      const net={stroke:'rgba(255,255,255,.32)','stroke-width':1};
+      for(let i=1;i<3;i++)grp.appendChild(el('line',Object.assign({x1:x+w*i/3,y1:y,x2:x+w*i/3,y2:y+h},net)));
+      for(let j=1;j<3;j++)grp.appendChild(el('line',Object.assign({x1:x,y1:y+h*j/3,x2:x+w,y2:y+h*j/3},net)));
+      return grp;}
+    pitch.appendChild(goalNet(-0.028,0));
+    pitch.appendChild(goalNet(1.028,1));
+    // viñeteado de estadio (profundidad)
+    pitch.appendChild(el('rect',{x:0,y:0,width:VW,height:VH,fill:'none','pointer-events':'none'}));
+    // dynamic layers
+    pitch.appendChild(el('g',{id:'trail'}));pitch.appendChild(el('g',{id:'path'}));pitch.appendChild(el('g',{id:'ring'}));
+    pitch.appendChild(el('g',{id:'players'}));pitch.appendChild(el('g',{id:'ball'}));
+  }
+
+  /* ===== actores y modo administrador ===== */
+  const REFS=[{id:'REF0',label:'Árbitro'},{id:'REF1',label:'Asist. 1'},{id:'REF2',label:'Asist. 2'},{id:'REF3',label:'4º árbitro'}];
+  let mode='view',showRefs=false,showRatings=false,selected=null;
+  let edits={};
+  try{const s=localStorage.getItem('sim_edits');if(s)edits=JSON.parse(s);}catch(e){}
+  function saveEdits(){try{localStorage.setItem('sim_edits',JSON.stringify(edits));}catch(e){}}
+  function edited(id){return edits[id]&&edits[id].length;}
+  function interp(arr,tt){
+    if(tt<=arr[0].t)return {x:arr[0].x,y:arr[0].y};
+    const L=arr[arr.length-1];if(tt>=L.t)return {x:L.x,y:L.y};
+    let i=0;while(i<arr.length-1&&arr[i+1].t<=tt)i++;
+    const a=arr[i],b=arr[i+1],k=(tt-a.t)/(b.t-a.t);
+    return {x:a.x+(b.x-a.x)*k,y:a.y+(b.y-a.y)*k};
+  }
+  function setKey(id,tt,x,y){if(!edits[id])edits[id]=[];const arr=edits[id];
+    const i=arr.findIndex(k=>Math.abs(k.t-tt)<0.05);
+    if(i>=0)arr[i]={t:tt,x,y};else{arr.push({t:tt,x,y});arr.sort((a,b)=>a.t-b.t);}saveEdits();}
+  function undoKey(id){if(edited(id)){edits[id].pop();if(!edits[id].length)delete edits[id];saveEdits();}}
+  function clearActor(id){delete edits[id];saveEdits();}
+
+  const r2=v=>Math.round(v*100)/100;
+  function inRange(id,tt){const e=edits[id];return e&&e.length&&tt>=e[0].t-1e-6&&tt<=e[e.length-1].t+1e-6;}
+  function ballPos(tt){const bp=ballAt(tt);if(edited('BALL')){const p=interp(edits['BALL'],tt);return {x:p.x,y:p.y,pos:bp.pos};}return bp;}
+  function refPositions(tt,ball){
+    const r=[
+      {x:clamp(0.5+(ball.x-0.5)*0.45,.12,.88),y:clamp(0.5+(ball.y-0.5)*0.35,.2,.8)},
+      {x:clamp(ball.x,.05,.95),y:-0.05},
+      {x:clamp(ball.x,.05,.95),y:1.05},
+      {x:0.5,y:1.06}];
+    for(let i=0;i<4;i++)if(edited('REF'+i)){const p=interp(edits['REF'+i],tt);r[i]={x:p.x,y:p.y};}
+    return r;
+  }
+  function computeFrame(tt){
+    const ball=ballPos(tt);
+    const ci=teamPositions(CI_SLOTS,tt,ball),no=teamPositions(NO_SLOTS,tt,ball);
+    const possArr=ball.pos==='CI'?ci:no,defArr=ball.pos==='CI'?no:ci;
+    let carrier=pull(possArr,ball,.82,true);pull(defArr,ball,.45,false);
+    if(carrier>=0){const c=possArr[carrier],dir=ball.pos==='CI'?1:-1;
+      c.x=clamp(ball.x-dir*0.045,.02,.98);c.y=clamp(ball.y-0.018,.05,.95);}
+    ci.forEach((p,i)=>{if(edited('CI'+i)){const e=interp(edits['CI'+i],tt);p.x=e.x;p.y=e.y;}});
+    no.forEach((p,i)=>{if(edited('NO'+i)){const e=interp(edits['NO'+i],tt);p.x=e.x;p.y=e.y;}});
+    return {ball,ci,no,refs:refPositions(tt,ball),carrier};
+  }
+  function actorNorm(id,tt){const f=computeFrame(tt);
+    if(id==='BALL')return f.ball;
+    if(id[0]==='R')return f.refs[+id.slice(3)];
+    const idx=+id.slice(2);return id.slice(0,2)==='CI'?f.ci[idx]:f.no[idx];}
+  function drawPath(){const g=pitch.querySelector('#path');if(!g)return;g.innerHTML="";if(!selected)return;
+    const col=selected==='BALL'?'#111':selected[0]==='R'?'#caa500':selected.slice(0,2)==='CI'?'#ff7900':'#c8102e';
+    let d='';for(let tt=0;tt<=TMAX;tt+=25){const p=actorNorm(selected,tt),s=M(p.x,p.y);d+=(tt?'L':'M')+s[0].toFixed(1)+' '+s[1].toFixed(1)+' ';}
+    g.appendChild(el('path',{d,fill:'none',stroke:col,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round',opacity:.35}));
+    if(edited(selected)){const ks=edits[selected];
+      let dk='';ks.forEach((k,i)=>{const s=M(k.x,k.y);dk+=(i?'L':'M')+s[0].toFixed(1)+' '+s[1].toFixed(1)+' ';});
+      g.appendChild(el('path',{d:dk,fill:'none',stroke:col,'stroke-width':3,'stroke-linejoin':'round','stroke-linecap':'round',opacity:.95}));
+      ks.forEach((k,i)=>{const s=M(k.x,k.y);
+        g.appendChild(el('circle',{cx:s[0],cy:s[1],r:9,fill:col,stroke:'#fff','stroke-width':1.5}));
+        const tx=el('text',{x:s[0],y:s[1],fill:'#fff','font-size':10,'font-weight':700,'text-anchor':'middle','dominant-baseline':'central'});tx.textContent=i+1;g.appendChild(tx);});
+    }
+  }
+  function fmtT(tt){const mm=Math.floor(tt/60),ss=Math.floor(tt%60),cc=Math.round((tt-Math.floor(tt))*100);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function renderKf(){const box=$("#kfmarks");if(!box)return;box.innerHTML="";
+    if(mode!=='edit'||!selected||!edited(selected))return;
+    edits[selected].forEach(k=>{const m=document.createElement('div');m.className='kf';m.style.left=(k.t/TMAX*100)+'%';
+      m.title=fmtT(k.t);m.addEventListener('click',()=>{pause();setT(k.t);});box.appendChild(m);});}
+
+  let tokens=[],refTokens=[];
+  function buildTokens(){
+    const g=pitch.querySelector('#players');g.innerHTML="";tokens=[];refTokens=[];
+    const make=(team,id)=>{
+      const grp=el('g',{style:'cursor:pointer'});
+      const c=el('circle',{r:21,'stroke-width':3,filter:'url(#fTok)'});
+      const num=el('text',{class:'pnum','text-anchor':'middle','dominant-baseline':'central'});
+      const nm=el('text',{class:'pname','text-anchor':'middle'});
+      const bg=el('g',{});
+      grp.appendChild(c);grp.appendChild(num);grp.appendChild(nm);grp.appendChild(bg);
+      grp.addEventListener('click',ev=>{ev.stopPropagation();onActorClick(id);});
+      g.appendChild(grp);tokens.push({grp,c,num,nm,bg,team,id});
+    };
+    CI_SLOTS.forEach((_,i)=>make('CI','CI'+i));NO_SLOTS.forEach((_,i)=>make('NO','NO'+i));
+    REFS.forEach(rf=>{const grp=el('g',{style:'cursor:pointer'});
+      const c=el('circle',{r:14,fill:'#1f1f1f',stroke:'#f9d423','stroke-width':2.2,filter:'url(#fTok)'});
+      const nm=el('text',{class:'pname','text-anchor':'middle'});
+      grp.appendChild(c);grp.appendChild(nm);
+      grp.addEventListener('click',ev=>{ev.stopPropagation();onActorClick(rf.id);});
+      g.appendChild(grp);refTokens.push({grp,c,nm,id:rf.id,label:rf.label});});
+  }
+  function colorFor(team,gk){
+    if(gk)return team==='CI'?['var(--ci-gk)','#0f6b38','#fff']:['var(--no-gk)','#8a6d00','#1b1b1b'];
+    return team==='CI'?['url(#kitCI)','var(--ci-d)','#fff']:['url(#kitNO)','var(--no-d)','#1b1b1b'];
+  }
+  function buildBall(){
+    const g=pitch.querySelector('#ball');g.innerHTML="";g.style.cursor='pointer';
+    g.appendChild(el('circle',{r:15,fill:'#fff',stroke:'#1b1b1b','stroke-width':2.4,filter:'url(#fBall)'}));
+    g.appendChild(el('circle',{r:5.6,fill:'#1b1b1b'}));
+    g.addEventListener('click',ev=>{ev.stopPropagation();onActorClick('BALL');});
+  }
+
+  function paintToken(tk,p,min,t,badges){
+    const person=occ(p.slot,min),[fill,stroke,numc]=colorFor(tk.team,p.gk);
+    const s=M(p.x,p.y),X=s[0],Y=s[1];
+    tk.c.setAttribute('cx',X);tk.c.setAttribute('cy',Y);tk.c.setAttribute('fill',fill);tk.c.setAttribute('stroke',stroke);
+    tk.num.setAttribute('x',X);tk.num.setAttribute('y',Y);tk.num.setAttribute('fill',numc);tk.num.textContent=person.num?person.num:'';
+    tk.nm.setAttribute('x',X);tk.nm.setAttribute('y',Y+33);tk.nm.textContent=person.name;
+    tk.bg.innerHTML="";
+    if(badges){
+      if(SCORERS[person.name]!==undefined && t>=SCORERS[person.name]){
+        tk.bg.appendChild(el('circle',{cx:X+15,cy:Y-14,r:8,fill:'#137333',stroke:'#fff','stroke-width':1.5}));
+        const x=el('text',{x:X+15,y:Y-14,fill:'#fff','font-size':10,'text-anchor':'middle','dominant-baseline':'central'});x.textContent='⚽';tk.bg.appendChild(x);
+      }
+      if(CARDED[person.name]!==undefined && t>=CARDED[person.name])
+        tk.bg.appendChild(el('rect',{x:X-23,y:Y-21,width:9,height:12,rx:1.5,fill:'#f9ab00',stroke:'#fff','stroke-width':1.2}));
+    }
+    if(showRatings){const st=PLAYER_STATS[tk.id];
+      if(st&&st.rating!=null){const rv=st.rating,col=rv>=7?'#137333':rv>=6?'#b06000':'#c5221f';
+        tk.bg.appendChild(el('rect',{x:X-14,y:Y+9,width:28,height:16,rx:4,fill:col,stroke:'#fff','stroke-width':1,filter:'url(#fTok)'}));
+        const rt=el('text',{x:X,y:Y+17,fill:'#fff','font-size':10.5,'font-weight':700,'text-anchor':'middle','dominant-baseline':'central'});rt.textContent=rv.toFixed(1);tk.bg.appendChild(rt);}}
+  }
+
+  function render(t){
+    const f=computeFrame(t),min=dispMin(t),ball=f.ball;
+    const all=f.ci.concat(f.no);
+    for(let i=0;i<all.length;i++)paintToken(tokens[i],all[i],min,t,true);
+    refTokens.forEach((rt,i)=>{rt.grp.style.display=showRefs?'':'none';if(!showRefs)return;
+      const s=M(f.refs[i].x,f.refs[i].y);rt.c.setAttribute('cx',s[0]);rt.c.setAttribute('cy',s[1]);
+      rt.nm.setAttribute('x',s[0]);rt.nm.setAttribute('y',s[1]+26);rt.nm.textContent=rt.label;});
+    const ring=pitch.querySelector('#ring');ring.innerHTML="";
+    if(f.carrier>=0){const c=ball.pos==='CI'?f.ci[f.carrier]:f.no[f.carrier],s=M(c.x,c.y),col=ball.pos==='CI'?'var(--ci)':'var(--no)';
+      ring.appendChild(el('circle',{cx:s[0],cy:s[1],r:23,fill:'none',stroke:col,'stroke-width':2.6,opacity:.9}));}
+    if(selected){const ps=actorNorm(selected,t),s=M(ps.x,ps.y);ring.appendChild(el('circle',{cx:s[0],cy:s[1],r:26,fill:'none',stroke:'var(--accent)','stroke-width':3.2}));}
+    const bs=M(ball.x,ball.y);pitch.querySelector('#ball').setAttribute('transform',`translate(${bs[0]},${bs[1]})`);
+    const trail=pitch.querySelector('#trail');trail.innerHTML="";
+    for(let k=1;k<=9;k++){const tt=t-k*1.3;if(tt<0)break;const bp=ballPos(tt),s=M(bp.x,bp.y);
+      trail.appendChild(el('circle',{cx:s[0],cy:s[1],r:11-k*.65,fill:'#fff',opacity:(.32*(1-k/10)).toFixed(3)}));}
+    drawPath();
+    const sc=scoreAt(t);$("#scoreCI").textContent=sc.ci;$("#scoreNO").textContent=sc.no;
+    const mt=matchTime(t);
+    $("#clock").textContent=mt.disp;
+    $("#status").textContent=t>=TMAX?(I18N[CUR].ftshort||'FT'):mt.badge;
+    $("#status").classList.toggle('added',t<TMAX&&mt.stop);
+    const d=$("#possDot");d.style.opacity=1;d.style.background=ball.pos==='CI'?'var(--ci)':'var(--no)';
+    const pc=Math.round(possCI(t));$("#possCI").textContent=pc+'%';$("#possNO").textContent=(100-pc)+'%';$("#possFill").style.width=pc+'%';
+    const et=$("#edTime");if(et)et.textContent=fmtT(t);
+    const ec=$("#edCoord");if(ec){if(selected){const p=actorNorm(selected,t);ec.textContent='x '+p.x.toFixed(2)+' ('+Math.round(p.x*105)+' m) · y '+p.y.toFixed(2)+' ('+Math.round(p.y*68)+' m)';}else ec.textContent='';}
+    const fi=$("#formIntro");if(fi)fi.style.opacity=(current==='simulacion')?'1':'0';
+    renderKf();
+  }
+
+  function renderStatic(){
+    const ciP=CI_SLOTS.map((sl,i)=>({x:sl.b[0],y:sl.b[1],gk:i===0,slot:sl}));
+    const noP=NO_SLOTS.map((sl,i)=>({x:sl.b[0],y:sl.b[1],gk:i===0,slot:sl}));
+    const all=ciP.concat(noP);
+    for(let i=0;i<all.length;i++)paintToken(tokens[i],all[i],0,0,false);
+    refTokens.forEach(rt=>rt.grp.style.display='none');
+    pitch.querySelector('#ring').innerHTML="";pitch.querySelector('#trail').innerHTML="";
+    const pg=pitch.querySelector('#path');if(pg)pg.innerHTML="";
+    pitch.querySelector('#ball').setAttribute('transform','translate(-100,-100)');
+    $("#possDot").style.opacity=0;
+    const view=current,es=CUR==='es';
+    tokens.forEach(tk=>{
+      tk.bg.innerHTML='';
+      const info=PLAYER_STATS[tk.id]; if(!info)return;
+      const X=+tk.c.getAttribute('cx'),Y=+tk.c.getAttribute('cy');
+      if(view==='rendimiento'){
+        const r=info.rating; if(r==null)return;
+        const col=r>=7?'#1a8a3c':r>=6?'#e8a400':r>=5?'#e07b00':'#d23b3b',w=34,h=18;
+        tk.bg.appendChild(el('rect',{x:X-w/2,y:Y+38,width:w,height:h,rx:5,fill:col}));
+        const tx=el('text',{x:X,y:Y+38+h/2+0.5,'text-anchor':'middle','dominant-baseline':'central',style:'font:800 12px var(--sans);fill:#fff;pointer-events:none'});
+        tx.textContent=r.toFixed(1); tk.bg.appendChild(tx);
+      }else if(view==='edad'){
+        const a=info.age; if(a==null)return;
+        const tx=el('text',{x:X,y:Y+50,'text-anchor':'middle',class:'pstat'}); tx.textContent=a+' '+(es?'años':'yrs'); tk.bg.appendChild(tx);
+      }else if(view==='club'){
+        const c=info.club; if(!c)return;
+        const tx=el('text',{x:X,y:Y+50,'text-anchor':'middle',class:'pstat club'}); tx.textContent=c; tk.bg.appendChild(tx);
+      }
+    });
+  }
+
+  function buildMarkers(){
+    const box=$("#markers");box.innerHTML="";
+    const ht=document.createElement('div');ht.className='mk ht';ht.style.left=(HALF/TMAX*100)+'%';
+    ht.innerHTML='<span class="htline"></span><span class="tip" data-i18n-tip="ht">Medio tiempo · desde aquí el 2.º tiempo</span>';
+    ht.addEventListener('click',()=>{pause();setT(HALF);});box.appendChild(ht);
+    EVENTS.forEach(ev=>{const m=document.createElement('div');m.className='mk';m.dataset.kind=ev.kind;
+      m.style.left=(ev.t/TMAX*100)+'%';m.innerHTML=`<span class="dot"></span><span class="tip">${ev.label}</span>`;
+      m.addEventListener('click',()=>{pause();setT(ev.t);});box.appendChild(m);});
+  }
+
+  const seek=$("#seek");let t=0,playing=false,speed=1,raf=null,last=0;const SIM=60;
+  const BREAKS=[{t:1320,min:22},{t:4260,min:67}];const BREAK_HOLD=3600;
+  let breakActive=false,breakTimer=null;const breaksDone=new Set();
+  function clearBreak(){breakActive=false;if(breakTimer)clearTimeout(breakTimer);breakTimer=null;$("#hydra").style.display='none';}
+  function startBreak(b){breaksDone.add(b.t);breakActive=true;last=0;
+    seek.value=t;seek.style.setProperty('--p',(t/TMAX*100)+'%');render(t);
+    const D=I18N[CUR];let n=3;const box=$("#hydra");
+    box.innerHTML='<div class="hy-i">💧</div><div class="hy-t">'+D.hydra+'</div><div class="hy-s">'+b.min+"' · "+D.hydra_sub+'</div><div class="hy-c" id="hyC">'+n+'</div>';
+    box.style.display='flex';
+    if(breakTimer)clearTimeout(breakTimer);
+    const tick=()=>{n--;const c=$("#hyC");if(c)c.textContent=n>0?n:'▶';
+      if(n>0){breakTimer=setTimeout(tick,BREAK_HOLD/3);}
+      else{breakTimer=setTimeout(()=>{clearBreak();if(playing){last=0;raf=requestAnimationFrame(loop);}},420);}};
+    breakTimer=setTimeout(tick,BREAK_HOLD/3);
+  }
+  function setT(v,fromInput){t=clamp(v,0,TMAX);if(!fromInput)seek.value=t;
+    clearBreak();breaksDone.clear();
+    seek.style.setProperty('--p',(t/TMAX*100)+'%');render(t);}
+  function loop(now){if(!playing||breakActive)return;if(!last)last=now;const dt=(now-last)/1000;last=now;const prev=t;
+    t+=dt*SIM*speed;
+    for(const b of BREAKS){if(!breaksDone.has(b.t)&&prev<b.t&&t>=b.t){t=b.t;startBreak(b);return;}}
+    if(t>=TMAX){t=TMAX;playing=false;updateIcon();}
+    seek.value=t;seek.style.setProperty('--p',(t/TMAX*100)+'%');render(t);if(playing)raf=requestAnimationFrame(loop);}
+  function play(){if(t>=TMAX){t=0;breaksDone.clear();}playing=true;last=0;updateIcon();raf=requestAnimationFrame(loop);}
+  function pause(){playing=false;clearBreak();if(raf)cancelAnimationFrame(raf);updateIcon();}
+  function updateIcon(){$("#playIcon").innerHTML=playing?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';
+    $("#playBtn").setAttribute('aria-label',playing?I18N[CUR].pause:I18N[CUR].play);}
+
+  $("#playBtn").addEventListener('click',()=>playing?pause():play());
+  $("#resetBtn").addEventListener('click',()=>{pause();setT(0);});
+  seek.addEventListener('input',()=>{pause();setT(+seek.value,true);});
+  $("#speeds").addEventListener('click',e=>{const b=e.target.closest('.spd');if(!b)return;speed=+b.dataset.s;
+    document.querySelectorAll('.spd').forEach(x=>x.classList.toggle('active',x===b));});
+  $("#iconlegend").addEventListener('click',e=>{const b=e.target.closest('.lg');if(!b)return;
+    const list=EVENTS.filter(ev=>ev.kind===b.dataset.kind).sort((p,q)=>p.t-q.t);
+    if(!list.length)return;
+    pause();
+    const next=list.find(ev=>ev.t>t+1)||list[0];
+    setT(next.t);});
+  $("#orient").addEventListener('click',e=>{const b=e.target.closest('.ob');if(!b)return;
+    orient=b.dataset.o;document.querySelectorAll('.ob').forEach(x=>x.classList.toggle('active',x===b));
+    applyOrientation();});
+  document.addEventListener('keydown',e=>{if(topView!=='alineaciones'||current!=='simulacion')return;
+    if(e.code==='Space'){e.preventDefault();playing?pause():play();}
+    else if(e.code==='ArrowRight'){pause();setT(t+15);}else if(e.code==='ArrowLeft'){pause();setT(t-15);}});
+
+  function applyOrientation(){
+    const [w,h]=dims();pitch.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    $("#field").classList.toggle('vert',orient==='vertical');
+    buildPitch();buildTokens();buildBall();
+    if(current==='simulacion')setT(t);else renderStatic();
+  }
+
+  let current='simulacion',topView='alineaciones';
+  let CUR='es';
+  const I18N={
+    es:{
+      banner_tag:'Propuesta',
+      banner_txt:'<b>Nueva pestaña «Simulación»</b> dentro de Alineaciones — replay táctico con deslizador. Cancha vertical por defecto (móvil), opcional horizontal.',
+      meta:'FIFA World Cup 2026™ · Octavos (Round of 32) · <span class="ft" title="Final: el partido terminó — ya se jugaron los 90 minutos más el descuento">Final</span>',
+      team_ci:'Costa de Marfil', team_no:'Noruega',
+      tab_overview:'Información general', tab_timeline:'Cronología', tab_lineups:'Alineaciones', tab_stats:'Estadísticas', tab_more:'Más partidos',
+      sub_perf:'Rendimiento', sub_age:'Edad', sub_club:'Club', sub_sim:'Simulación <span class="pill">Nuevo</span>',
+      orient_label:'Orientación', orient_v:'Vertical', orient_h:'Horizontal',
+      speed_label:'Velocidad', reset:'↺ Reiniciar', poss_label:'Posesión', legend_ball:'Balón', ratings:'Valoraciones',
+      selhint:'Toca un jugador, un árbitro o el balón en la cancha para ver su recorrido (vuelve a tocarlo para quitarlo).',
+      ed_toggle:'✎ Editar posiciones (admin)', ed_refs:'Mostrar árbitros', ed_actor:'Actor', ed_step:'Paso',
+      ed_prevkf:'◀ punto', ed_nextkf:'punto ▶',
+      ed_hint:'No marques cada segundo: coloca solo <b>puntos clave</b> (mueve el tiempo y haz clic en la cancha). Entre tus puntos la simulación interpola, y fuera de tu primer/último punto ese actor sigue tu punto más cercano. Así puedes editar solo una jugada (p. ej. un gol) sin tocar el resto.',
+      ed_undo:'Quitar último punto', ed_clearact:'Limpiar actor', ed_clearall:'Limpiar todo', ed_export:'Exportar FBR', ed_import:'Importar FBR',
+      lg_goal:'🟢 Gol', lg_card:'🟡 Amarilla', lg_sub:'🔵 Cambio', lg_shot:'⚪ Remate', lg_break:'💧 Hidratación',
+      lg_hint:'Toca un botón o un punto de la barra para saltar a la jugada',
+      st_mid:'Estadísticas del equipo', st_r0:'Remates', st_r1:'Remates al arco', st_r2:'Posesión', st_r3:'Pases', st_r4:'Precisión de pase',
+      st_r5:'Faltas', st_r6:'Tarjetas amarillas', st_r7:'Tarjetas rojas', st_r8:'Fuera de juego', st_r9:'Córners',
+      st_foot:'Estadísticas finales reales del partido.',
+      venue:'Estadio: Dallas Stadium (AT&amp;T Stadium, Arlington) · Partido 78 · DT: E. Faé (CIV) — S. Solbakken (NOR)',
+      foot:'<b>Qué es real y qué es reconstruido.</b> Marcador, goleadores y minutos (Nusa 39\', Amad Diallo 74\', Haaland 86\'), la amonestación a Nusa, los cambios y las alineaciones son datos verificados del partido. Las <b>trayectorias</b> de jugadores y balón entre eventos, y los remates marcados «reconstrucción», son una recreación ilustrativa: en producción se alimentarían de los datos de seguimiento que ya generan los partidos.',
+      caption:'<b>Simulación del partido.</b> Posiciones de los 22 jugadores y el balón a lo largo de los 90 minutos. Los cambios aparecen en cancha al pasar su minuto.',
+      snote:{rendimiento:'Valoración de cada jugador (del 1 al 10) según la ficha del partido.', edad:'Edad de cada jugador durante el Mundial.', club:'Club de cada jugador esta temporada.'},
+      ftshort:'Final',
+      hydra:'Pausa de hidratación', hydra_sub:'pausa de 3 min · se reanuda desde el mismo punto',
+      ov:{title:'Ficha del partido',comp:'Competición',round:'Fase',date:'Fecha',venue:'Estadio',ref:'Árbitro',coach:'Directores técnicos',form:'Formaciones',result:'Resultado',
+        v_comp:'Copa Mundial de la FIFA 2026™',v_round:'Octavos de final (Round of 32) · Partido 78',v_date:'30 de junio de 2026',v_venue:'AT&amp;T Stadium — Arlington, Dallas (EE. UU.)',v_ref:'Jesús Valenzuela (Venezuela)',
+        tl_title:'Cronología del partido',mm_round:'Octavos de final · 30 jun 2026 · Dallas',mm_note:'Por ahora está cargado este partido. El visor funciona con un archivo por partido (formato FBR), así que aquí irían apareciendo más encuentros a medida que se agreguen.'},
+      ht_tip:'Medio tiempo · desde aquí el 2.º tiempo', play:'Reproducir', pause:'Pausar'
+    },
+    en:{
+      banner_tag:'Proposal',
+      banner_txt:'<b>New “Simulation” tab</b> inside Lineups — tactical replay with a slider. Vertical pitch by default (mobile), optional horizontal.',
+      meta:'FIFA World Cup 2026™ · Round of 32 · <span class="ft" title="Full-time: the match is over — the 90 minutes plus stoppage have been played">Full-time</span>',
+      team_ci:'Côte d\'Ivoire', team_no:'Norway',
+      tab_overview:'Overview', tab_timeline:'Timeline', tab_lineups:'Lineups', tab_stats:'Stats', tab_more:'More matches',
+      sub_perf:'Performance', sub_age:'Age', sub_club:'Club', sub_sim:'Simulation <span class="pill">New</span>',
+      orient_label:'Orientation', orient_v:'Vertical', orient_h:'Horizontal',
+      speed_label:'Speed', reset:'↺ Reset', poss_label:'Possession', legend_ball:'Ball', ratings:'Ratings',
+      selhint:'Tap a player, a referee or the ball on the pitch to see its path (tap again to remove it).',
+      ed_toggle:'✎ Edit positions (admin)', ed_refs:'Show referees', ed_actor:'Actor', ed_step:'Step',
+      ed_prevkf:'◀ point', ed_nextkf:'point ▶',
+      ed_hint:'Don’t mark every second: place only <b>key points</b> (move the time and click the pitch). Between your points the simulation interpolates, and outside your first/last point the actor holds your nearest point. This lets you edit a single play (e.g. a goal) without touching the rest.',
+      ed_undo:'Remove last point', ed_clearact:'Clear actor', ed_clearall:'Clear all', ed_export:'Export FBR', ed_import:'Import FBR',
+      lg_goal:'🟢 Goal', lg_card:'🟡 Yellow', lg_sub:'🔵 Sub', lg_shot:'⚪ Shot', lg_break:'💧 Hydration',
+      lg_hint:'Tap a button or a marker on the bar to jump to the play',
+      st_mid:'Team stats', st_r0:'Shots', st_r1:'Shots on target', st_r2:'Possession', st_r3:'Passes', st_r4:'Pass accuracy',
+      st_r5:'Fouls', st_r6:'Yellow cards', st_r7:'Red cards', st_r8:'Offside', st_r9:'Corners',
+      st_foot:'Real final match statistics.',
+      venue:'Venue: Dallas Stadium (AT&amp;T Stadium, Arlington) · Match 78 · Coach: E. Faé (CIV) — S. Solbakken (NOR)',
+      foot:'<b>What’s real and what’s reconstructed.</b> Score, scorers and minutes (Nusa 39\', Amad Diallo 74\', Haaland 86\'), Nusa’s booking, the substitutions and the lineups are verified match data. The <b>paths</b> of players and ball between events, and the shots marked “reconstruction”, are an illustrative recreation: in production they would be fed by the tracking data matches already generate.',
+      caption:'<b>Match simulation.</b> Positions of the 22 players and the ball across the 90 minutes. Substitutes appear on the pitch when their minute passes.',
+      snote:{rendimiento:'Each player’s match rating (1–10) from the match card.', edad:'Each player’s age during the World Cup.', club:'Each player’s club this season.'},
+      ftshort:'FT',
+      hydra:'Hydration break', hydra_sub:'3-min break · resumes from the same spot',
+      ov:{title:'Match info',comp:'Competition',round:'Round',date:'Date',venue:'Venue',ref:'Referee',coach:'Head coaches',form:'Formations',result:'Result',
+        v_comp:'FIFA World Cup 2026™',v_round:'Round of 32 · Match 78',v_date:'30 June 2026',v_venue:'AT&amp;T Stadium — Arlington, Dallas (USA)',v_ref:'Jesús Valenzuela (Venezuela)',
+        tl_title:'Match timeline',mm_round:'Round of 32 · 30 Jun 2026 · Dallas',mm_note:'For now this single match is loaded. The viewer runs on one file per match (FBR format), so more matches would appear here as they are added.'},
+      ht_tip:'Half-time · second half from here', play:'Play', pause:'Pause'
+    }
+  };
+  const CAT={"de":{"roles":{"GK":"Torwart","SW":"Libero","CB":"Innenverteidiger","LB":"Linksverteidiger","RB":"Rechtsverteidiger","LWB":"Linker Flügelverteidiger","RWB":"Rechter Flügelverteidiger","CDM":"Defensiver Mittelfeldspieler","CM":"Zentraler Mittelfeldspieler","CAM":"Offensiver Mittelfeldspieler","LM":"Linkes Mittelfeld","RM":"Rechtes Mittelfeld","LW":"Linksaußen","RW":"Rechtsaußen","CF":"Mittelstürmer","ST":"Stürmer","referee":"Schiedsrichter","assistant":"Schiedsrichterassistent","fourth":"Vierter Offizieller","var":"VAR"},"events":{"goal":"Tor","card":"Karte","substitution":"Auswechslung","shot":"Schuss","cooling-break":"Trinkpause","ball-change":"Ballwechsel","pass":"Pass","cross":"Flanke","dribble":"Dribbling","tackle":"Tackling","interception":"Abfangen","foul":"Foul","offside":"Abseits","other":"Andere"},"goal_subtypes":{"normal":"Aus dem Spiel","penalty":"Elfmeter","own_goal":"Eigentor","free_kick":"Freistoß","header":"Kopfball"},"cards":{"yellow":"Gelbe Karte","second_yellow":"Gelb-Rot","red":"Rote Karte"},"periods":{"first_half":"Erste Halbzeit","second_half":"Zweite Halbzeit","extra_first":"Verlängerung (1.)","extra_second":"Verlängerung (2.)","penalties":"Elfmeterschießen"},"ball_states":{"in":"Im Spiel","out_side":"Aus (Einwurf)","out_back":"Aus (Torlinie)","goal":"Tor","set_piece":"Standardsituation","kickoff":"Anstoß"},"ui":{"play":"Abspielen","pause":"Pause","restart":"Neu starten","halftime":"Halbzeit","full_time":"Spielende","ratings":"Bewertungen","home":"Heim","away":"Auswärts","possession":"Ballbesitz","lineups":"Aufstellungen","timeline":"Zeitverlauf","stats":"Statistiken","overview":"Spielinfo"}},"en":{"roles":{"GK":"Goalkeeper","SW":"Sweeper","CB":"Centre-back","LB":"Left-back","RB":"Right-back","LWB":"Left wing-back","RWB":"Right wing-back","CDM":"Defensive midfielder","CM":"Central midfielder","CAM":"Attacking midfielder","LM":"Left midfielder","RM":"Right midfielder","LW":"Left winger","RW":"Right winger","CF":"Centre-forward","ST":"Striker","referee":"Referee","assistant":"Assistant referee","fourth":"Fourth official","var":"VAR"},"events":{"goal":"Goal","card":"Card","substitution":"Substitution","shot":"Shot","cooling-break":"Hydration break","ball-change":"Ball change","pass":"Pass","cross":"Cross","dribble":"Dribble","tackle":"Tackle","interception":"Interception","foul":"Foul","offside":"Offside","other":"Other"},"goal_subtypes":{"normal":"Open play","penalty":"Penalty","own_goal":"Own goal","free_kick":"Free kick","header":"Header"},"cards":{"yellow":"Yellow card","second_yellow":"Second yellow","red":"Red card"},"periods":{"first_half":"First half","second_half":"Second half","extra_first":"Extra time (first)","extra_second":"Extra time (second)","penalties":"Penalty shootout"},"ball_states":{"in":"In play","out_side":"Out (throw-in)","out_back":"Out (goal line)","goal":"Goal","set_piece":"Set piece","kickoff":"Kick-off"},"ui":{"play":"Play","pause":"Pause","restart":"Restart","halftime":"Half-time","full_time":"Full-time","ratings":"Ratings","home":"Home","away":"Away","possession":"Possession","lineups":"Line-ups","timeline":"Timeline","stats":"Statistics","overview":"Match info"}},"es":{"roles":{"GK":"Arquero","SW":"Líbero","CB":"Defensa central","LB":"Lateral izquierdo","RB":"Lateral derecho","LWB":"Carrilero izquierdo","RWB":"Carrilero derecho","CDM":"Mediocentro defensivo","CM":"Mediocentro","CAM":"Mediapunta","LM":"Interior izquierdo","RM":"Interior derecho","LW":"Extremo izquierdo","RW":"Extremo derecho","CF":"Delantero centro","ST":"Delantero","referee":"Árbitro","assistant":"Árbitro asistente","fourth":"Cuarto árbitro","var":"VAR"},"events":{"goal":"Gol","card":"Tarjeta","substitution":"Cambio","shot":"Remate","cooling-break":"Pausa de hidratación","ball-change":"Cambio de balón","pass":"Pase","cross":"Centro","dribble":"Regate","tackle":"Entrada","interception":"Intercepción","foul":"Falta","offside":"Fuera de juego","other":"Otro"},"goal_subtypes":{"normal":"Jugada","penalty":"Penal","own_goal":"Autogol","free_kick":"Tiro libre","header":"Cabezazo"},"cards":{"yellow":"Tarjeta amarilla","second_yellow":"Segunda amarilla","red":"Tarjeta roja"},"periods":{"first_half":"Primer tiempo","second_half":"Segundo tiempo","extra_first":"Prórroga (primer tiempo)","extra_second":"Prórroga (segundo tiempo)","penalties":"Tanda de penales"},"ball_states":{"in":"En juego","out_side":"Fuera (saque de banda)","out_back":"Fuera (línea de fondo)","goal":"Gol","set_piece":"Balón parado","kickoff":"Saque de centro"},"ui":{"play":"Reproducir","pause":"Pausa","restart":"Reiniciar","halftime":"Medio tiempo","full_time":"Final","ratings":"Valoraciones","home":"Local","away":"Visitante","possession":"Posesión","lineups":"Alineaciones","timeline":"Cronología","stats":"Estadísticas","overview":"Información general"}},"fr":{"roles":{"GK":"Gardien","SW":"Libéro","CB":"Défenseur central","LB":"Arrière gauche","RB":"Arrière droit","LWB":"Arrière latéral gauche","RWB":"Arrière latéral droit","CDM":"Milieu défensif","CM":"Milieu central","CAM":"Milieu offensif","LM":"Milieu gauche","RM":"Milieu droit","LW":"Ailier gauche","RW":"Ailier droit","CF":"Avant-centre","ST":"Attaquant","referee":"Arbitre","assistant":"Arbitre assistant","fourth":"Quatrième arbitre","var":"VAR"},"events":{"goal":"But","card":"Carton","substitution":"Remplacement","shot":"Tir","cooling-break":"Pause hydratation","ball-change":"Changement de ballon","pass":"Passe","cross":"Centre","dribble":"Dribble","tackle":"Tacle","interception":"Interception","foul":"Faute","offside":"Hors-jeu","other":"Autre"},"goal_subtypes":{"normal":"Action de jeu","penalty":"Penalty","own_goal":"But contre son camp","free_kick":"Coup franc","header":"Tête"},"cards":{"yellow":"Carton jaune","second_yellow":"Second carton jaune","red":"Carton rouge"},"periods":{"first_half":"Première mi-temps","second_half":"Seconde mi-temps","extra_first":"Prolongation (1re)","extra_second":"Prolongation (2e)","penalties":"Tirs au but"},"ball_states":{"in":"En jeu","out_side":"Touche","out_back":"Sortie de but","goal":"But","set_piece":"Coup de pied arrêté","kickoff":"Coup d’envoi"},"ui":{"play":"Lecture","pause":"Pause","restart":"Recommencer","halftime":"Mi-temps","full_time":"Fin du match","ratings":"Notes","home":"Domicile","away":"Extérieur","possession":"Possession","lineups":"Compositions","timeline":"Chronologie","stats":"Statistiques","overview":"Informations"}},"it":{"roles":{"GK":"Portiere","SW":"Libero","CB":"Difensore centrale","LB":"Terzino sinistro","RB":"Terzino destro","LWB":"Esterno sinistro","RWB":"Esterno destro","CDM":"Mediano difensivo","CM":"Centrocampista centrale","CAM":"Trequartista","LM":"Centrocampista sinistro","RM":"Centrocampista destro","LW":"Ala sinistra","RW":"Ala destra","CF":"Centravanti","ST":"Attaccante","referee":"Arbitro","assistant":"Assistente arbitrale","fourth":"Quarto uomo","var":"VAR"},"events":{"goal":"Gol","card":"Cartellino","substitution":"Sostituzione","shot":"Tiro","cooling-break":"Pausa idratazione","ball-change":"Cambio pallone","pass":"Passaggio","cross":"Cross","dribble":"Dribbling","tackle":"Contrasto","interception":"Intercetto","foul":"Fallo","offside":"Fuorigioco","other":"Altro"},"goal_subtypes":{"normal":"Su azione","penalty":"Rigore","own_goal":"Autogol","free_kick":"Punizione","header":"Colpo di testa"},"cards":{"yellow":"Cartellino giallo","second_yellow":"Doppio giallo","red":"Cartellino rosso"},"periods":{"first_half":"Primo tempo","second_half":"Secondo tempo","extra_first":"Primo supplementare","extra_second":"Secondo supplementare","penalties":"Calci di rigore"},"ball_states":{"in":"In gioco","out_side":"Rimessa laterale","out_back":"Fondo campo","goal":"Gol","set_piece":"Palla inattiva","kickoff":"Calcio d’inizio"},"ui":{"play":"Riproduci","pause":"Pausa","restart":"Ricomincia","halftime":"Intervallo","full_time":"Fine partita","ratings":"Valutazioni","home":"Casa","away":"Trasferta","possession":"Possesso palla","lineups":"Formazioni","timeline":"Cronologia","stats":"Statistiche","overview":"Informazioni"}},"pt":{"roles":{"GK":"Goleiro","SW":"Líbero","CB":"Zagueiro","LB":"Lateral esquerdo","RB":"Lateral direito","LWB":"Ala esquerdo","RWB":"Ala direito","CDM":"Volante de contenção","CM":"Meio-campista","CAM":"Meia-atacante","LM":"Meia esquerda","RM":"Meia direita","LW":"Ponta esquerda","RW":"Ponta direita","CF":"Centroavante","ST":"Atacante","referee":"Árbitro","assistant":"Árbitro assistente","fourth":"Quarto árbitro","var":"VAR"},"events":{"goal":"Gol","card":"Cartão","substitution":"Substituição","shot":"Chute","cooling-break":"Pausa para hidratação","ball-change":"Troca de bola","pass":"Passe","cross":"Cruzamento","dribble":"Drible","tackle":"Desarme","interception":"Interceptação","foul":"Falta","offside":"Impedimento","other":"Outro"},"goal_subtypes":{"normal":"Bola rolando","penalty":"Pênalti","own_goal":"Gol contra","free_kick":"Falta","header":"Cabeceio"},"cards":{"yellow":"Cartão amarelo","second_yellow":"Segundo amarelo","red":"Cartão vermelho"},"periods":{"first_half":"Primeiro tempo","second_half":"Segundo tempo","extra_first":"Prorrogação (1º tempo)","extra_second":"Prorrogação (2º tempo)","penalties":"Disputa de pênaltis"},"ball_states":{"in":"Em jogo","out_side":"Lateral","out_back":"Linha de fundo","goal":"Gol","set_piece":"Bola parada","kickoff":"Pontapé inicial"},"ui":{"play":"Reproduzir","pause":"Pausa","restart":"Reiniciar","halftime":"Intervalo","full_time":"Fim de jogo","ratings":"Notas","home":"Mandante","away":"Visitante","possession":"Posse de bola","lineups":"Escalações","timeline":"Cronologia","stats":"Estatísticas","overview":"Informações"}}};
+  // i18n v0.7: construir los idiomas del catálogo (fr/pt/de/it) sobre base EN + traducción del catálogo.
+  (function(){
+    const ov=L=>({play:CAT[L].ui.play,pause:CAT[L].ui.pause,reset:CAT[L].ui.restart,
+      ratings:CAT[L].ui.ratings,poss_label:CAT[L].ui.possession,tab_lineups:CAT[L].ui.lineups,
+      tab_timeline:CAT[L].ui.timeline,tab_stats:CAT[L].ui.stats,tab_overview:CAT[L].ui.overview,
+      ftshort:CAT[L].ui.full_time,ht_tip:CAT[L].ui.halftime,
+      lg_goal:'\uD83D\uDFE2 '+CAT[L].events.goal,lg_card:'\uD83D\uDFE1 '+CAT[L].events.card,
+      lg_sub:'\uD83D\uDD35 '+CAT[L].events.substitution,lg_shot:'\u26AA '+CAT[L].events.shot,
+      lg_break:'\uD83D\uDCA7 '+CAT[L].events['cooling-break']});
+    ['fr','pt','de','it'].forEach(L=>{ if(CAT[L]) I18N[L]=Object.assign({},I18N.en,ov(L)); });
+  })();
+  function setChkLabel(sel,txt){const cb=$(sel);if(!cb)return;const lab=cb.parentNode,n=lab.childNodes[lab.childNodes.length-1];if(n&&n.nodeType===3)n.textContent=txt;}
+  function applyLang(lang){
+    if(!I18N[lang])return; CUR=lang; document.documentElement.lang=lang;
+    const D=I18N[lang],q=s=>document.querySelector(s),qa=s=>document.querySelectorAll(s);
+    const bn=qa('.banner span'); if(bn[0])bn[0].textContent=D.banner_tag; if(bn[1])bn[1].innerHTML=D.banner_txt;
+    q('.meta').innerHTML=D.meta;
+    $("#teamCIname").textContent=D.team_ci; $("#teamNOname").textContent=D.team_no;
+    const tabs=qa('.tabs .tab'),tk=[D.tab_overview,D.tab_timeline,D.tab_lineups,D.tab_stats,D.tab_more]; tabs.forEach((t,i)=>{if(tk[i]!=null)t.textContent=tk[i];});
+    const subs=qa('.subtabs .subtab'); [D.sub_perf,D.sub_age,D.sub_club].forEach((v,i)=>{if(subs[i])subs[i].textContent=v;}); if(subs[3])subs[3].innerHTML=D.sub_sim;
+    q('#orient span').textContent=D.orient_label; q('.ob[data-o="vertical"]').textContent=D.orient_v; q('.ob[data-o="horizontal"]').textContent=D.orient_h;
+    q('.ctl-row2 > span').textContent=D.speed_label; $("#resetBtn").textContent=D.reset;
+    const sw=qa('.legend .sw'); if(sw[2]&&sw[2].lastChild)sw[2].lastChild.textContent=' '+D.legend_ball;
+    setChkLabel('#ratChk',' '+D.ratings); setChkLabel('#edRefs',' '+D.ed_refs);
+    q('.possbar > span').textContent=D.poss_label; q('.selhint').textContent=D.selhint;
+    $("#edToggle").textContent=D.ed_toggle;
+    const rows=qa('#edPanel .ed-row'); if(rows[0]&&rows[0].querySelector('span'))rows[0].querySelector('span').textContent=D.ed_actor; if(rows[1]&&rows[1].querySelector('span'))rows[1].querySelector('span').textContent=D.ed_step;
+    $("#edPrevKf").textContent=D.ed_prevkf; $("#edNextKf").textContent=D.ed_nextkf; q('.ed-hint').innerHTML=D.ed_hint;
+    $("#edUndo").textContent=D.ed_undo; $("#edClear").textContent=D.ed_clearact; $("#edClearAll").textContent=D.ed_clearall; $("#edExport").textContent=D.ed_export;
+    const imp=$("#edImport").parentNode; if(imp&&imp.childNodes[0]&&imp.childNodes[0].nodeType===3)imp.childNodes[0].textContent=D.ed_import;
+    const lg=qa('.iconlegend .lg'),lgk=[D.lg_goal,D.lg_card,D.lg_sub,D.lg_shot,D.lg_break]; lg.forEach((b,i)=>{if(lgk[i]!=null)b.textContent=lgk[i];});
+    q('.lghint').textContent=D.lg_hint;
+    const lbls=qa('.srow .lbl'),rk=[D.st_r0,D.st_r1,D.st_r2,D.st_r3,D.st_r4,D.st_r5,D.st_r6,D.st_r7,D.st_r8,D.st_r9]; lbls.forEach((l,i)=>{if(rk[i]!=null)l.textContent=rk[i];});
+    q('.venue').innerHTML=D.venue; if(q('.foot'))q('.foot').innerHTML=D.foot;
+    $("#caption").innerHTML=D.caption;
+    $("#playBtn").setAttribute('aria-label',playing?D.pause:D.play);
+    const fi=$("#formIntro");if(fi)fi.innerHTML='<div class="fi-row"><span class="fi-dot" style="background:var(--ci)"></span>'+D.team_ci+' <b>4-1-2-3</b></div><div class="fi-row"><span class="fi-dot" style="background:var(--no)"></span>'+D.team_no+' <b>4-3-3</b></div>';
+    const htt=document.querySelector('.mk.ht .tip');if(htt)htt.textContent=D.ht_tip;
+    qa('#lang .ob').forEach(b=>b.classList.toggle('active',b.dataset.l===lang));
+  }
+  $("#lang").addEventListener('click',e=>{const b=e.target.closest('.ob');if(!b)return;applyLang(b.dataset.l);});
+  /* ===== selección y editor (admin) ===== */
+  function onActorClick(id){
+    if(mode==='edit'){selectEdit(id);}
+    else{selected=(selected===id?null:id);render(t);}
+  }
+  function actorLabel(id){if(id==='BALL')return 'Balón';if(id[0]==='R'){const r=REFS.find(x=>x.id===id);return r?r.label:id;}
+    const idx=+id.slice(2);return (id.slice(0,2)==='CI'?'CIV ':'NOR ')+(id.slice(0,2)==='CI'?CI_SLOTS[idx].s.name:NO_SLOTS[idx].s.name);}
+  function selectEdit(id){selected=id;const sel=$("#edActor");if(sel)sel.value=id;updateEditInfo();render(t);}
+  function updateEditInfo(){const n=edited(selected)?edits[selected].length:0;
+    $("#edInfo").textContent=selected?(actorLabel(selected)+' · '+n+' punto'+(n===1?'':'s')):'—';}
+  function fillActorSelect(){const sel=$("#edActor");sel.innerHTML="";
+    const add=(v,l)=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);};
+    add('BALL','⚽ Balón');
+    CI_SLOTS.forEach((sl,i)=>add('CI'+i,'CIV — '+sl.s.name));
+    NO_SLOTS.forEach((sl,i)=>add('NO'+i,'NOR — '+sl.s.name));
+    REFS.forEach(rf=>add(rf.id,rf.label));}
+  pitch.addEventListener('click',e=>{
+    if(mode!=='edit'||!selected)return;
+    const pt=pitch.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
+    const sp=pt.matrixTransform(pitch.getScreenCTM().inverse());
+    let l,w;if(orient==='vertical'){w=(sp.x-MWID)/FW;l=(sp.y-MLEN)/FL;}else{l=(sp.x-MLEN)/FL;w=(sp.y-MWID)/FW;}
+    setKey(selected,r2(t),clamp(l,-fL,1+fL),clamp(w,-fW,1+fW));render(t);updateEditInfo();
+  });
+  $("#edToggle").addEventListener('click',()=>{
+    mode=mode==='edit'?'view':'edit';const on=mode==='edit';
+    $("#edToggle").classList.toggle('on',on);$("#edToggle").textContent=on?'✓ Editando posiciones (admin)':'✎ Editar posiciones (admin)';
+    $("#edPanel").style.display=on?'block':'none';
+    if(on){showRefs=true;$("#edRefs").checked=true;if(!selected)selected='BALL';$("#edActor").value=selected;updateEditInfo();}
+    render(t);
+  });
+  $("#edRefs").addEventListener('change',e=>{showRefs=e.target.checked;render(t);});
+  { const rc=$("#ratChk"); if(rc)rc.addEventListener('change',e=>{showRatings=e.target.checked;render(t);}); }
+  $("#edActor").addEventListener('change',e=>selectEdit(e.target.value));
+  let gstep=1;
+  $("#edStep").addEventListener('click',e=>{const b=e.target.closest('.spd');if(!b)return;gstep=+b.dataset.g;
+    document.querySelectorAll('#edStep .spd').forEach(x=>x.classList.toggle('active',x===b));});
+  $("#edPrev").addEventListener('click',()=>{pause();setT(r2(t-gstep));});
+  $("#edNext").addEventListener('click',()=>{pause();setT(r2(t+gstep));});
+  $("#edPrevKf").addEventListener('click',()=>{if(!selected||!edited(selected))return;
+    const ks=edits[selected];const prev=[...ks].reverse().find(k=>k.t<t-0.01)||ks[ks.length-1];pause();setT(prev.t);});
+  $("#edNextKf").addEventListener('click',()=>{if(!selected||!edited(selected))return;
+    const ks=edits[selected];const nx=ks.find(k=>k.t>t+0.01)||ks[0];pause();setT(nx.t);});
+  $("#edUndo").addEventListener('click',()=>{if(selected){undoKey(selected);render(t);updateEditInfo();}});
+  $("#edClear").addEventListener('click',()=>{if(selected){clearActor(selected);render(t);updateEditInfo();}});
+  $("#edClearAll").addEventListener('click',()=>{if(confirm('¿Borrar todas las posiciones editadas?')){edits={};saveEdits();render(t);updateEditInfo();}});
+  function perpDist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);
+    if(L<1e-9)return Math.hypot(p.x-a.x,p.y-a.y);
+    return Math.abs((p.x-a.x)*dy-(p.y-a.y)*dx)/L;}
+  function rdp(pts,eps){
+    if(pts.length<3)return pts.slice();
+    let dmax=0,idx=0;const a=pts[0],b=pts[pts.length-1];
+    for(let i=1;i<pts.length-1;i++){const d=perpDist(pts[i],a,b);if(d>dmax){dmax=d;idx=i;}}
+    if(dmax>eps){const l=rdp(pts.slice(0,idx+1),eps),r=rdp(pts.slice(idx),eps);return l.slice(0,-1).concat(r);}
+    return [a,b];
+  }
+  function buildFBR(){
+    const actors=[];
+    const ROLES={CI:['GK','LB','CB','CB','RB','CDM','CM','CM','LW','ST','RW'],
+                 NO:['GK','LB','CB','CB','RB','CDM','CM','CAM','RW','ST','LW']};
+    const f0=computeFrame(0);
+    // Identidad por persona (v1.0): id estable por PERSONA, no por slot.
+    const slug=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    const NAME2ID={};
+    const squadOf=(slots,prefix)=>{const persons=[];
+      slots.forEach((sl,i)=>{
+        const sid=prefix.toLowerCase()+'-'+slug(sl.s.name);NAME2ID[sl.s.name]=sid;
+        const ps=PLAYER_STATS[prefix+i]||{};
+        const p={id:sid,number:sl.s.num,name:sl.s.name};
+        const bio={};if(ps.age!=null)bio.age=ps.age;if(ps.club)bio.club=ps.club;if(Object.keys(bio).length)p.bio=bio;
+        const basic={},detailed={};for(const k in ps){if(k==='age'||k==='club')continue;
+          if(k==='rating'||k==='minutes')basic[k]=ps[k];else detailed[k]=ps[k];}
+        const st={};if(Object.keys(basic).length)st.basic=basic;if(Object.keys(detailed).length)st.detailed=detailed;
+        if(Object.keys(st).length)p.stats=st;
+        persons.push(p);
+        if(sl.sub){const bid=prefix.toLowerCase()+'-'+slug(sl.sub.name);NAME2ID[sl.sub.name]=bid;
+          const pb={id:bid,number:sl.sub.num,name:sl.sub.name};
+          const bb={};if(sl.sub.age!=null)bb.age=sl.sub.age;if(sl.sub.club)bb.club=sl.sub.club;if(Object.keys(bb).length)pb.bio=bb;
+          persons.push(pb);}
+      });return persons;};
+    const squadCI=squadOf(CI_SLOTS,'CI'),squadNO=squadOf(NO_SLOTS,'NO');
+    // El corte de ocupación de un slot = el t del evento de cambio de ese slot (una sola fuente de verdad).
+    const SUBT={};
+    EVENTS.forEach(e=>{if(e.kind==='sub'&&e.subs)e.subs.forEach(s=>{if(s.slot)SUBT[s.slot]=e.t;});});
+    const addSlots=(slots,prefix,teamId,fr)=>slots.forEach((sl,i)=>{
+      const a={id:prefix+i,type:'player',team:teamId,role:ROLES[prefix][i],
+        anchor:{x:+(+sl.b[0]).toFixed(4),y:+(+sl.b[1]).toFixed(4)}};
+      if(fr[i])a.position={x:+fr[i].x.toFixed(4),y:+fr[i].y.toFixed(4)};
+      // occupants por PERSONA, cubriendo [0,TMAX] sin huecos
+      const subT=sl.sub?(SUBT[prefix+i]!=null?SUBT[prefix+i]:sl.sub.min*60):TMAX;
+      const occ=[{person:NAME2ID[sl.s.name],from:0,to:subT}];
+      if(sl.sub)occ.push({person:NAME2ID[sl.sub.name],from:subT,to:TMAX});
+      a.occupants=occ;
+      actors.push(a);
+    });
+    addSlots(CI_SLOTS,'CI','home',f0.ci);addSlots(NO_SLOTS,'NO','away',f0.no);
+    actors.push({id:'BALL',type:'ball'});
+    ['referee','assistant','assistant','fourth'].forEach((role,i)=>actors.push({id:'REF'+i,type:'official',role}));
+
+    // keyframe único [t,x,y] (v1.0: una sola forma; el estado del balón vive en events)
+    const kf=k=>[r2(k.t),+(+k.x).toFixed(4),+(+k.y).toFixed(4)];
+    const tracks=[];
+    tracks.push(edited('BALL')
+      ? {actor:'BALL',keyframes:edits['BALL'].map(kf)}
+      : {actor:'BALL',keyframes:W.map(w=>[w[0],+w[1].toFixed(4),+w[2].toFixed(4)])});
+    Object.keys(edits).forEach(id=>{if(id!=='BALL')tracks.push({actor:id,keyframes:edits[id].map(kf)});});
+
+    // Recorrido calculado de cada actor no editado → export autosuficiente.
+    const accum={};
+    const regIds=CI_SLOTS.map((_,i)=>'CI'+i).concat(NO_SLOTS.map((_,i)=>'NO'+i));
+    regIds.forEach(id=>{if(!edited(id))accum[id]=[];});
+    const tset=new Set([0,TMAX]);
+    for(let tt=0;tt<=TMAX;tt+=20)tset.add(tt);
+    W.forEach(w=>tset.add(w[0])); EVENTS.forEach(e=>tset.add(e.t));
+    const tarr=[...tset].sort((a,b)=>a-b);
+    tarr.forEach(tt=>{const f=computeFrame(tt);
+      f.ci.forEach((p,i)=>{const id='CI'+i;if(accum[id])accum[id].push({t:tt,x:p.x,y:p.y});});
+      f.no.forEach((p,i)=>{const id='NO'+i;if(accum[id])accum[id].push({t:tt,x:p.x,y:p.y});});
+    });
+    Object.keys(accum).forEach(id=>{const arr=accum[id];if(!arr.length)return;
+      tracks.push({actor:id,keyframes:rdp(arr,0.014).map(kf)});});
+    tracks.forEach(t=>{t.interpolation='linear';});
+
+    const kindMap={goal:'goal',card:'card',sub:'substitution',shot:'shot',break:'cooling-break'};
+    // confidence: rúbrica §5.11 (1=confirmado por transmisión/acta; 0.6=minuto aproximado)
+    const confOf={goal:1,card:1,sub:1,break:1,shot:0.6};
+    const events=EVENTS.map(e=>{const o={t:e.t,type:kindMap[e.kind]||'other'};
+      if(e.team)o.team=e.team;if(e.actor)o.actor=e.actor;if(e.assist)o.assist=e.assist;
+      if(e.kind==='goal')o.subtype='normal';
+      if(e.card)o.card=e.card;
+      if(e.subs)o.subs=e.subs.map(s=>{
+        let inId=NAME2ID[s.in]||s.in,outId=NAME2ID[s.out]||s.out;
+        const m=/^([A-Z]+)(\d+)$/.exec(s.slot||'');
+        if(m){const sl=(m[1]==='CI'?CI_SLOTS:NO_SLOTS)[+m[2]];
+          if(sl){outId=NAME2ID[sl.s.name]||outId;if(sl.sub)inId=NAME2ID[sl.sub.name]||inId;}}
+        return {in:inId,out:outId,slot:s.slot};
+      });
+      o.confidence=confOf[e.kind]!=null?confOf[e.kind]:0.7;o.detail=e.label;return o;});
+
+    const lineup=prefix=>{const L={};ROLES[prefix].forEach((r,i)=>{const id=prefix+i;
+      if(L[r]===undefined)L[r]=id;else if(Array.isArray(L[r]))L[r].push(id);else L[r]=[L[r],id];});return L;};
+    return {
+      format:'fbr',version:'1.0',schema_version:'1.0',profile:'extended',
+      meta:{match_id:78,competition:'FIFA World Cup 2026',stage:'Round of 32',date:'2026-06-30',
+        venue:"AT&T Stadium, Dallas",score:{home:1,away:2},source:'manual',author:'Percy Quispe Hancco',license:'CC-BY-4.0',
+        schema:'https://example.org/fbr/fbr.schema.json',
+        changelog:'v1.0: identidad por person_id (occupants y subs referencian personas, squad por equipo); validador semántico de invariantes; keyframe único [t,x,y]; rúbrica de confidence; en.json canónico.',
+        note:'Reconstrucción aproximada, hecha a mano. No es dato oficial.'},
+      pitch:{length_m:105,width_m:68,coordinates:'normalized',orientation:'fixed',out_of_bounds:true},
+      teams:[
+        {id:'home',name:"Côte d'Ivoire",code:'CIV',color:'#e01f26',formation:'4-1-2-3',coach:'Emerse Faé',kit:{shirt:KITS.CI.shirt,shorts:KITS.CI.shorts,socks:KITS.CI.socks,split:[58,28,14],pattern:KITS.CI.pattern,boots:KITS.CI.boots},lineup:lineup('CI'),squad:squadCI},
+        {id:'away',name:'Norway',code:'NOR',color:'#ffffff',formation:'4-3-3',coach:'Ståle Solbakken',kit:{shirt:KITS.NO.shirt,shorts:KITS.NO.shorts,socks:KITS.NO.socks,split:[58,28,14],pattern:KITS.NO.pattern,boots:KITS.NO.boots},lineup:lineup('NO'),squad:squadNO}
+      ],
+      actors,
+      time:{unit:'second',kickoff:0,duration:TMAX,periods:[
+        {period:1,type:'first_half',start:0,regulation_end:2700,end:HALF,added_seconds:240},
+        {period:2,type:'second_half',start:HALF,regulation_end:5640,end:TMAX,added_seconds:420}
+      ],breaks:BREAKS.map(b=>({period:b.t<HALF?1:2,type:'cooling',at:b.t,duration:180}))},
+      tracks,events,
+      analytics:{team:{
+        home:{possession:52,shots:14,shots_on_target:5,passes:375,pass_accuracy:86,fouls:6,corners:14,offsides:2,yellow_cards:0,red_cards:0},
+        away:{possession:48,shots:9,shots_on_target:3,passes:481,pass_accuracy:89,fouls:7,corners:3,offsides:2,yellow_cards:1,red_cards:0}
+      },possession:(()=>{const out=[];let last=null;W.forEach(w=>{const tm=w[3]==='CI'?'home':'away';if(tm!==last){out.push([w[0],tm]);last=tm;}});return out;})()},
+      render:{orientation:'vertical',theme:'pitch-green',show_names:true,show_ratings:false},
+      assets:{},
+      extensions:{}
+    };
+  }
+  $("#edExport").addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify(buildFBR(),null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='partido-78.fbr.json';a.click();
+  });
+  $("#edImport").addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const d=JSON.parse(r.result);const ne={};
+      if(Array.isArray(d.tracks)){            // FBR (v0.1+)
+        d.tracks.forEach(tr=>{if(tr&&tr.actor&&Array.isArray(tr.keyframes))
+          ne[tr.actor]=tr.keyframes.map(k=>Array.isArray(k)?{t:+k[0],x:+k[1],y:+k[2]}:{t:+k.t,x:+k.x,y:+k.y});});
+      }else if(Array.isArray(d.frames)){      // formato antiguo
+        d.frames.forEach(fr=>(fr.positions||[]).forEach(p=>{(ne[p.actor]=ne[p.actor]||[]).push({t:(fr.t!=null?fr.t:fr.second),x:p.x,y:p.y});}));
+      }else{alert('No reconozco el archivo (falta "tracks" o "frames").');return;}
+      Object.values(ne).forEach(a=>a.sort((x,y)=>x.t-y.t));
+      edits=ne;saveEdits();render(t);updateEditInfo();
+    }catch(err){alert('Archivo inválido: '+err.message);}};
+    r.readAsText(f);e.target.value='';});
+
+  buildPitch();buildTokens();buildBall();buildMarkers();fillActorSelect();applyLang(CUR);setT(0);
+})();
+</script>
+</body>
+</html>

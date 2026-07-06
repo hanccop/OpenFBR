@@ -1,0 +1,91 @@
+{
+  "catalog": "fbr-i18n",
+  "version": "0.7",
+  "language": "en",
+  "do_not_translate": [
+    "player names",
+    "team names",
+    "stadium names",
+    "referee names"
+  ],
+  "roles": {
+    "GK": "Goalkeeper",
+    "SW": "Sweeper",
+    "CB": "Centre-back",
+    "LB": "Left-back",
+    "RB": "Right-back",
+    "LWB": "Left wing-back",
+    "RWB": "Right wing-back",
+    "CDM": "Defensive midfielder",
+    "CM": "Central midfielder",
+    "CAM": "Attacking midfielder",
+    "LM": "Left midfielder",
+    "RM": "Right midfielder",
+    "LW": "Left winger",
+    "RW": "Right winger",
+    "CF": "Centre-forward",
+    "ST": "Striker",
+    "referee": "Referee",
+    "assistant": "Assistant referee",
+    "fourth": "Fourth official",
+    "var": "VAR"
+  },
+  "events": {
+    "goal": "Goal",
+    "card": "Card",
+    "substitution": "Substitution",
+    "shot": "Shot",
+    "cooling-break": "Hydration break",
+    "ball-change": "Ball change",
+    "pass": "Pass",
+    "cross": "Cross",
+    "dribble": "Dribble",
+    "tackle": "Tackle",
+    "interception": "Interception",
+    "foul": "Foul",
+    "offside": "Offside",
+    "other": "Other"
+  },
+  "goal_subtypes": {
+    "normal": "Open play",
+    "penalty": "Penalty",
+    "own_goal": "Own goal",
+    "free_kick": "Free kick",
+    "header": "Header"
+  },
+  "cards": {
+    "yellow": "Yellow card",
+    "second_yellow": "Second yellow",
+    "red": "Red card"
+  },
+  "periods": {
+    "first_half": "First half",
+    "second_half": "Second half",
+    "extra_first": "Extra time (first)",
+    "extra_second": "Extra time (second)",
+    "penalties": "Penalty shootout"
+  },
+  "ball_states": {
+    "in": "In play",
+    "out_side": "Out (throw-in)",
+    "out_back": "Out (goal line)",
+    "goal": "Goal",
+    "set_piece": "Set piece",
+    "kickoff": "Kick-off"
+  },
+  "ui": {
+    "play": "Play",
+    "pause": "Pause",
+    "restart": "Restart",
+    "halftime": "Half-time",
+    "full_time": "Full-time",
+    "ratings": "Ratings",
+    "home": "Home",
+    "away": "Away",
+    "possession": "Possession",
+    "lineups": "Line-ups",
+    "timeline": "Timeline",
+    "stats": "Statistics",
+    "overview": "Match info"
+  }
+}

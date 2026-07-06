@@ -1,0 +1,42 @@
+{
+  "name": "fbr-validate",
+  "version": "1.0.0",
+  "description": "Validador del formato FBR (Football Replay Format): estructura (JSON Schema) + invariantes semánticos. CLI y librería.",
+  "type": "module",
+  "main": "lib.mjs",
+  "exports": {
+    ".": "./lib.mjs"
+  },
+  "bin": {
+    "fbr-validate": "cli.mjs"
+  },
+  "files": [
+    "lib.mjs",
+    "cli.mjs",
+    "fbr.schema.json",
+    "examples",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node cli.mjs examples/*.fbr.json"
+  },
+  "keywords": [
+    "fbr",
+    "football",
+    "soccer",
+    "replay",
+    "tracking",
+    "json-schema",
+    "validator",
+    "openfbr"
+  ],
+  "author": "Percy Quispe Hancco",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

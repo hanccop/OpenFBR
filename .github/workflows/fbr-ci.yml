@@ -1,0 +1,40 @@
+name: FBR CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  conformance:
+    name: Conformidad del formato FBR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencias Python
+        run: pip install jsonschema
+
+      - name: Conformidad (validador Python)
+        run: python3 formato/pruebas/validar.py
+
+      - name: Publicar informe QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-conformidad
+          path: formato/pruebas/INFORME.md
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Dependencias Node
+        working-directory: formato/pruebas
+        run: npm ci
+      - name: Conformidad (validador AJV)
+        working-directory: formato/pruebas
+        run: npm test

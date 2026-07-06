@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "Si usas OpenFBR / FBR, por favor cítalo como se indica abajo."
+title: "OpenFBR — Football Replay Format (FBR)"
+abstract: >-
+  Especificación abierta en formato JSON para reconstruir y reproducir el estado
+  espacial de un partido de fútbol mediante keyframes dispersos e interpolación
+  determinista. Incluye JSON Schema, validador semántico de referencia y un visor 2D.
+type: software
+authors:
+  - family-names: "Quispe Hancco"
+    given-names: "Percy"
+version: "1.0"
+date-released: "2026-07-01"
+license: CC-BY-4.0
+keywords:
+  - football
+  - soccer
+  - replay
+  - keyframes
+  - open standard
+  - data format
+  - sports analytics
+# repository-code: "https://github.com/USUARIO/openfbr"   # completar al publicar
+# url: "https://USUARIO.github.io/openfbr"                 # completar al publicar
+# doi: 10.5281/zenodo.XXXXXXX   # lo asigna Zenodo en el primer release; pegar aquí

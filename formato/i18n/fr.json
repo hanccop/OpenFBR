@@ -1,0 +1,91 @@
+{
+  "catalog": "fbr-i18n",
+  "version": "0.7",
+  "language": "fr",
+  "do_not_translate": [
+    "player names",
+    "team names",
+    "stadium names",
+    "referee names"
+  ],
+  "roles": {
+    "GK": "Gardien",
+    "SW": "Libéro",
+    "CB": "Défenseur central",
+    "LB": "Arrière gauche",
+    "RB": "Arrière droit",
+    "LWB": "Arrière latéral gauche",
+    "RWB": "Arrière latéral droit",
+    "CDM": "Milieu défensif",
+    "CM": "Milieu central",
+    "CAM": "Milieu offensif",
+    "LM": "Milieu gauche",
+    "RM": "Milieu droit",
+    "LW": "Ailier gauche",
+    "RW": "Ailier droit",
+    "CF": "Avant-centre",
+    "ST": "Attaquant",
+    "referee": "Arbitre",
+    "assistant": "Arbitre assistant",
+    "fourth": "Quatrième arbitre",
+    "var": "VAR"
+  },
+  "events": {
+    "goal": "But",
+    "card": "Carton",
+    "substitution": "Remplacement",
+    "shot": "Tir",
+    "cooling-break": "Pause hydratation",
+    "ball-change": "Changement de ballon",
+    "pass": "Passe",
+    "cross": "Centre",
+    "dribble": "Dribble",
+    "tackle": "Tacle",
+    "interception": "Interception",
+    "foul": "Faute",
+    "offside": "Hors-jeu",
+    "other": "Autre"
+  },
+  "goal_subtypes": {
+    "normal": "Action de jeu",
+    "penalty": "Penalty",
+    "own_goal": "But contre son camp",
+    "free_kick": "Coup franc",
+    "header": "Tête"
+  },
+  "cards": {
+    "yellow": "Carton jaune",
+    "second_yellow": "Second carton jaune",
+    "red": "Carton rouge"
+  },
+  "periods": {
+    "first_half": "Première mi-temps",
+    "second_half": "Seconde mi-temps",
+    "extra_first": "Prolongation (1re)",
+    "extra_second": "Prolongation (2e)",
+    "penalties": "Tirs au but"
+  },
+  "ball_states": {
+    "in": "En jeu",
+    "out_side": "Touche",
+    "out_back": "Sortie de but",
+    "goal": "But",
+    "set_piece": "Coup de pied arrêté",
+    "kickoff": "Coup d’envoi"
+  },
+  "ui": {
+    "play": "Lecture",
+    "pause": "Pause",
+    "restart": "Recommencer",
+    "halftime": "Mi-temps",
+    "full_time": "Fin du match",
+    "ratings": "Notes",
+    "home": "Domicile",
+    "away": "Extérieur",
+    "possession": "Possession",
+    "lineups": "Compositions",
+    "timeline": "Chronologie",
+    "stats": "Statistiques",
+    "overview": "Informations"
+  }
+}

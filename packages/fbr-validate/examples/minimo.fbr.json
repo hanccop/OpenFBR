@@ -1,0 +1,51 @@
+{
+ "format": "fbr",
+ "version": "1.0",
+ "schema_version": "1.0",
+ "meta": {
+  "source": "manual",
+  "date": "2026-06-30"
+ },
+ "pitch": {
+  "length_m": 105,
+  "width_m": 68,
+  "coordinates": "normalized"
+ },
+ "teams": [
+  {
+   "id": "home",
+   "name": "A"
+  },
+  {
+   "id": "away",
+   "name": "B"
+  }
+ ],
+ "actors": [
+  {
+   "id": "BALL",
+   "type": "ball"
+  }
+ ],
+ "time": {
+  "unit": "second",
+  "duration": 5400
+ },
+ "tracks": [
+  {
+   "actor": "BALL",
+   "keyframes": [
+    [
+     0,
+     0.5,
+     0.5
+    ],
+    [
+     5,
+     0.9,
+     0.4
+    ]
+   ]
+  }
+ ]
+}

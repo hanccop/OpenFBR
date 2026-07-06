@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/fbr/0.1/fbr.schema.json",
+  "title": "FBR — Football Replay Format",
+  "description": "Propuesta libre y abierta para describir una secuencia de futbol reproducible por keyframes.",
+  "$defs": {
+    "bio": {
+      "type": "object",
+      "description": "Datos del jugador (no del partido).",
+      "additionalProperties": false,
+      "properties": {
+        "age": { "type": "number" },
+        "club": { "type": "string" },
+        "nationality": { "type": "string" },
+        "height_cm": { "type": "number" },
+        "foot": { "enum": ["left", "right", "both"] }
+      }
+    },
+    "statblock": {
+      "type": "object",
+      "additionalProperties": { "type": ["number", "string"] },
+      "properties": {
+        "rating": { "type": "number" },
+        "minutes": { "type": "number" },
+        "goals": { "type": "number" },
+        "assists": { "type": "number" },
+        "shots": { "type": "number" },
+        "shots_on_target": { "type": "number" },
+        "passes": { "type": "number" },
+        "accurate_passes": { "type": "number" },
+        "pass_accuracy": { "type": "number" },
+        "tackles_won": { "type": "number" },
+        "fouls": { "type": "number" },
+        "yellow_cards": { "type": "number" },
+        "red_cards": { "type": "number" }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "description": "Números del jugador. Elegir UNA convención por archivo: (a) estructurada con 'basic'/'detailed' (recomendada, no añadir claves planas junto a ellas) o (b) plana. No mezclar ambas.",
+      "additionalProperties": { "type": ["number", "string"] },
+      "properties": {
+        "basic": { "$ref": "#/$defs/statblock" },
+        "detailed": { "$ref": "#/$defs/statblock" }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["format", "version", "pitch", "teams", "actors", "time", "tracks"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": "fbr" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$", "description": "Versión de la especificación FBR con que se generó el archivo (equivale a la del schema)." },
+    "schema_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$", "description": "Versión del JSON Schema a aplicar. Si está presente, debería coincidir con 'version'." },
+    "profile": { "enum": ["core", "extended", "broadcast", "tracking"], "description": "Perfil de conformidad (pista, no cambia el schema). Ver SPEC §2.3 y FBR-EXTENSIONS-DRAFT.md." },
+    "meta": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "match_id": { "type": ["string", "number"] },
+        "competition": { "type": "string" },
+        "stage": { "type": "string" },
+        "date": { "type": "string", "format": "date", "description": "Fecha en ISO 8601 (YYYY-MM-DD)." },
+        "venue": { "type": "string" },
+        "score": {
+          "type": "object",
+          "description": "Marcador final.",
+          "properties": { "home": { "type": "number" }, "away": { "type": "number" } }
+        },
+        "source": { "enum": ["manual", "tracking", "event-derived"] },
+        "author": { "type": "string" },
+        "license": { "type": "string" }
+      }
+    },
+    "pitch": {
+      "type": "object",
+      "required": ["length_m", "width_m", "coordinates"],
+      "additionalProperties": false,
+      "properties": {
+        "length_m": { "type": "number", "exclusiveMinimum": 0 },
+        "width_m": { "type": "number", "exclusiveMinimum": 0 },
+        "coordinates": { "enum": ["normalized", "meters"], "description": "Sistema de coordenadas. Con 'normalized', (0,0) = esquina del fondo del equipo 'home'; x = a lo largo del campo (0 = línea de meta de 'home', 1 = línea de meta de 'away'; 'home' ataca hacia x=1); y = a lo ancho (0 y 1 = las dos bandas)." },
+        "orientation": { "enum": ["fixed", "as-played"], "description": "'fixed': los equipos no cambian de lado entre tiempos (recomendado para análisis). 'as-played': cambian como en el partido real (requiere time.periods)." },
+        "out_of_bounds": { "type": "boolean", "description": "Si se admiten coordenadas fuera de [0,1] (balón fuera del campo)." }
+      }
+    },
+    "teams": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "enum": ["home", "away"] },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "color": { "type": "string" },
+          "formation": { "type": "string" },
+          "coach": { "type": "string" },
+          "kit": {
+            "type": "object",
+            "description": "Uniforme. 'split' (opcional) = porcentajes [camiseta, short, medias] para dibujar bandas en la ficha; por defecto [58,28,14]. La camiseta admite configuraciones (patrón + color secundario), no solo un color.",
+            "additionalProperties": false,
+            "properties": {
+              "shirt": { "type": "string", "description": "Color base de la camiseta (hex)." },
+              "shorts": { "type": "string" },
+              "socks": { "type": "string" },
+              "split": {
+                "type": "array",
+                "description": "Porcentajes [camiseta, short, medias] con que un visor puede dibujar el uniforme como bandas dentro de la ficha del jugador (de arriba abajo). Por defecto [58, 28, 14].",
+                "items": { "type": "number", "minimum": 0, "maximum": 100 },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "pattern": {
+                "description": "Patrón de la camiseta.",
+                "enum": ["solid", "stripes", "hoops", "sash", "halves", "quarters", "pinstripes", "checkerboard", "gradient"]
+              },
+              "secondary": { "type": "string", "description": "Segundo color del patrón (hex)." },
+              "trim": { "type": "string", "description": "Color de ribetes/vivos (hex)." },
+              "sleeves": { "type": "string", "description": "Color de mangas si difiere (hex)." },
+              "boots": { "type": "string", "description": "Color por defecto de los botines del equipo (hex)." }
+            }
+          },
+          "staff": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "additionalProperties": false,
+              "properties": { "name": { "type": "string" }, "role": { "type": "string" } }
+            }
+          },
+          "squad": {
+            "type": "array",
+            "description": "Registro de PERSONAS del equipo (titulares y suplentes), cada una con id estable. Es la fuente de verdad de identidad; occupants[].person y subs[].in/out apuntan a estos ids. v1.0.",
+            "items": {
+              "type": "object",
+              "required": ["id", "name"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "description": "person_id estable y único." },
+                "number": { "type": "number" },
+                "name": { "type": "string" },
+                "role": { "type": "string" },
+                "bio": { "$ref": "#/$defs/bio" },
+                "stats": { "$ref": "#/$defs/stats" }
+              }
+            }
+          },
+          "bench": {
+            "type": "array",
+            "description": "OBSOLETO (v1.0): reemplazado por 'squad' con ids de persona. Se mantiene solo por compatibilidad.",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "number": { "type": "number" },
+                "name": { "type": "string" },
+                "position": { "type": "string" },
+                "bio": { "$ref": "#/$defs/bio" }
+              }
+            }
+          },
+          "lineup": {
+            "type": "object",
+            "description": "Mapea cada rol de la formación al id (o ids) de los actores/slots titulares. v0.7.",
+            "additionalProperties": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "actors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "enum": ["player", "ball", "official"] },
+          "team": { "enum": ["home", "away"] },
+          "number": { "type": "number" },
+          "name": { "type": "string" },
+          "role": {
+            "description": "Rol/posición estandarizado. Para roles atípicos, usar este campo con el valor más cercano y detallar en 'role_custom'.",
+            "enum": ["GK","SW","CB","LB","RB","LWB","RWB","CDM","CM","CAM","LM","RM","LW","RW","CF","ST","referee","assistant","fourth","var"]
+          },
+          "role_custom": { "type": "string", "description": "Rol libre cuando 'role' del enumerado no alcanza (p. ej. 'falso 9', 'mediapunta izquierdo')." },
+          "anchor": {
+            "type": "object",
+            "description": "Posición base/teórica en la formación (normalizada 0–1: x=largo, y=ancho). v0.7.",
+            "additionalProperties": false,
+            "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+          },
+          "position": {
+            "type": "object",
+            "description": "Posición dinámica inicial (t=0). Comparar con 'anchor' revela desmarques/fuera de posición.",
+            "additionalProperties": false,
+            "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+          },
+          "boots": { "type": "string", "description": "Color de los botines de este jugador (hex); anula el del equipo." },
+          "occupants": {
+            "type": "array",
+            "description": "Historial de qué PERSONA ocupó este slot en cada tramo. Debe cubrir [0, time.duration] sin huecos ni solapes (lo verifica el validador semántico). v1.0.",
+            "items": {
+              "type": "object",
+              "required": ["person", "from"],
+              "additionalProperties": false,
+              "properties": {
+                "person": { "type": "string", "description": "person_id; debe existir en teams[].squad[].id." },
+                "from": { "type": "number" },
+                "to": { "type": "number" }
+              }
+            }
+          },
+          "active": {
+            "type": "object",
+            "required": ["from", "to"],
+            "additionalProperties": false,
+            "description": "OBSOLETO (v0.7): redundante con 'occupants' (el último ocupante de cada tramo es el activo). Se mantiene solo por compatibilidad; si se usa, debe estar sincronizado con 'occupants'.",
+            "properties": {
+              "from": { "type": "number" },
+              "to": { "type": "number" }
+            }
+          },
+          "bio": { "$ref": "#/$defs/bio" },
+          "stats": { "$ref": "#/$defs/stats" }
+        },
+        "allOf": [
+          {
+            "description": "'anchor' es obligatorio para jugadores de campo (role distinto de GK).",
+            "if": {
+              "required": ["type", "role"],
+              "properties": { "type": { "const": "player" }, "role": { "not": { "const": "GK" } } }
+            },
+            "then": { "required": ["anchor"] }
+          }
+        ]
+      }
+    },
+    "time": {
+      "type": "object",
+      "required": ["unit"],
+      "additionalProperties": false,
+      "properties": {
+        "unit": { "const": "second" },
+        "kickoff": { "type": "number" },
+        "duration": { "type": "number", "minimum": 0 },
+        "periods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["period", "start", "end"],
+            "additionalProperties": false,
+            "properties": {
+              "period": { "type": "integer" },
+              "type": {
+                "description": "Tipo de periodo. Los de prórroga y penales permiten prever un empate en eliminatoria.",
+                "enum": ["first_half", "second_half", "extra_first", "extra_second", "penalties"]
+              },
+              "start": { "type": "number" },
+              "regulation_end": { "type": "number", "description": "Fin del tiempo reglamentario del periodo (antes del añadido)." },
+              "end": { "type": "number" },
+              "added_seconds": { "type": "number", "minimum": 0, "description": "Segundos de tiempo añadido (descuento) de este periodo." }
+            }
+          }
+        },
+        "breaks": {
+          "type": "array",
+          "description": "Pausas dentro del juego (p. ej. hidratación/enfriamiento). Se suman al descuento del periodo.",
+          "items": {
+            "type": "object",
+            "required": ["at", "duration"],
+            "additionalProperties": false,
+            "properties": {
+              "period": { "type": "integer" },
+              "type": { "type": "string", "description": "p. ej. 'cooling' (hidratación)" },
+              "at": { "type": "number", "description": "Segundo en que inicia la pausa." },
+              "duration": { "type": "number", "minimum": 0, "description": "Duración de la pausa en segundos." }
+            }
+          }
+        }
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["actor", "keyframes"],
+        "additionalProperties": false,
+        "properties": {
+          "actor": { "type": "string" },
+          "interpolation": { "enum": ["linear"], "default": "linear", "description": "Método de interpolación entre keyframes. El núcleo solo define 'linear' (velocidad constante + retención en los extremos); otros métodos son extensión. Ver SPEC §5.5." },
+          "keyframes": {
+            "type": "array",
+            "minItems": 1,
+            "description": "v1.0: una sola forma, la tupla [t, x, y] (t en segundos, x/y normalizados). El estado del balón NO va aquí: se representa como evento 'ball-state'.",
+            "items": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "prefixItems": [
+                { "type": "number", "description": "t (segundos)" },
+                { "type": "number", "description": "x (0–1)" },
+                { "type": "number", "description": "y (0–1)" }
+              ],
+              "items": false
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["t", "type"],
+        "additionalProperties": true,
+        "properties": {
+          "t": { "type": "number" },
+          "type": { "enum": ["goal", "card", "substitution", "shot", "cooling-break", "ball-state", "ball-change", "pass", "cross", "dribble", "tackle", "interception", "foul", "offside", "other"] },
+          "state": { "enum": ["in", "out_side", "out_back", "goal", "set_piece", "kickoff"], "description": "Estado del balón (para eventos type='ball-state')." },
+          "team": { "enum": ["home", "away"] },
+          "actor": { "type": "string" },
+          "assist": { "type": "string" },
+          "recipient": { "type": "string", "description": "Destinatario (p. ej. en 'pass')." },
+          "subtype": {
+            "type": "string",
+            "description": "Matiz del evento. Para 'goal' está acotado a un catálogo cerrado (normal · penalty · own_goal · free_kick · header), validado por el schema. Para otros tipos ('foul', 'shot', 'pass'…) es libre.",
+            "examples": ["normal", "penalty", "own_goal", "free_kick", "header"]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Nivel discreto de fuente (NO una probabilidad estadística). Ver rúbrica en SPEC.md §5.11: 1.0 confirmado por transmisión/acta · 0.8 video con minuto exacto · 0.6 minuto aproximado · 0.4 reconstruido de memoria/crónica." },
+          "sequence_id": { "type": ["string", "number"], "description": "Agrupa eventos de una misma jugada/secuencia." },
+          "play_id": { "type": ["string", "number"], "description": "Identificador de la posesión/jugada." },
+          "card": { "enum": ["yellow", "second_yellow", "red"] },
+          "in": { "type": "string" },
+          "out": { "type": "string" },
+          "subs": {
+            "type": "array",
+            "description": "Cambios de este evento. 'in'/'out' son person_id (existen en teams[].squad); 'slot' es el id del actor/slot afectado. Formato OBLIGATORIO para 'substitution'. v1.0.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "in": { "type": "string" },
+                "out": { "type": "string" },
+                "slot": { "type": "string" }
+              }
+            }
+          },
+          "detail": { "type": "string" }
+        },
+        "allOf": [
+          {
+            "description": "Un evento 'substitution' debe llevar 'subs'.",
+            "if": { "required": ["type"], "properties": { "type": { "const": "substitution" } } },
+            "then": { "required": ["subs"] }
+          },
+          {
+            "description": "El 'subtype' de un 'goal' está acotado al catálogo cerrado de matices de gol.",
+            "if": { "required": ["type", "subtype"], "properties": { "type": { "const": "goal" } } },
+            "then": { "properties": { "subtype": { "enum": ["normal", "penalty", "own_goal", "free_kick", "header"] } } }
+          }
+        ]
+      }
+    },
+    "analytics": {
+      "type": "object",
+      "description": "Métricas derivadas (opcional). v0.7.",
+      "additionalProperties": true,
+      "properties": {
+        "team": {
+          "type": "object",
+          "description": "Totales por equipo: { home:{…}, away:{…} }.",
+          "properties": {
+            "home": { "type": "object", "additionalProperties": { "type": "number" } },
+            "away": { "type": "object", "additionalProperties": { "type": "number" } }
+          }
+        },
+        "possession": {
+          "type": "array",
+          "description": "Línea de tiempo de posesión: cada elemento [t, team] marca desde qué segundo cada equipo pasa a tener el balón.",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [ { "type": "number" }, { "enum": ["home", "away"] } ],
+            "items": false
+          }
+        }
+      }
+    },
+    "render": {
+      "type": "object",
+      "description": "Sugerencias para visualizadores (opcional, no afecta los datos). v0.7.",
+      "additionalProperties": true,
+      "properties": {
+        "orientation": { "enum": ["vertical", "horizontal"] },
+        "theme": { "type": "string" },
+        "show_names": { "type": "boolean" },
+        "show_ratings": { "type": "boolean" }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "description": "Referencias opcionales a recursos externos (escudos, fotos, video, audio, texturas, modelos 3D). Solo URLs/rutas; el archivo FBR no incrusta binarios. v0.7.",
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Espacio reservado para módulos futuros sin romper compatibilidad. v0.7.",
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,18 @@
+Especificación FBR — Creative Commons Attribution 4.0 International (CC-BY-4.0)
+==============================================================================
+
+La especificación del formato FBR y su documentación normativa —en particular
+SPEC.md, fbr.schema.json, los catálogos de i18n/ y los ejemplos de ejemplos/—
+se licencian bajo Creative Commons Attribution 4.0 International (CC-BY-4.0).
+
+Eres libre de compartir y adaptar el material, incluso con fines comerciales,
+siempre que des el crédito adecuado (atribución al autor y al proyecto FBR),
+enlaces a la licencia e indiques si hiciste cambios.
+
+Texto legal completo: https://creativecommons.org/licenses/by/4.0/legalcode
+Resumen legible:      https://creativecommons.org/licenses/by/4.0/
+
+Atribución sugerida:
+  «FBR (Football Replay Format), por Percy Quispe Hancco — CC-BY-4.0.»
+
+(El código de referencia se licencia por separado bajo MIT; ver LICENSE.)

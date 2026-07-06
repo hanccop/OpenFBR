@@ -1,0 +1,91 @@
+{
+  "catalog": "fbr-i18n",
+  "version": "0.7",
+  "language": "es",
+  "do_not_translate": [
+    "player names",
+    "team names",
+    "stadium names",
+    "referee names"
+  ],
+  "roles": {
+    "GK": "Arquero",
+    "SW": "Líbero",
+    "CB": "Defensa central",
+    "LB": "Lateral izquierdo",
+    "RB": "Lateral derecho",
+    "LWB": "Carrilero izquierdo",
+    "RWB": "Carrilero derecho",
+    "CDM": "Mediocentro defensivo",
+    "CM": "Mediocentro",
+    "CAM": "Mediapunta",
+    "LM": "Interior izquierdo",
+    "RM": "Interior derecho",
+    "LW": "Extremo izquierdo",
+    "RW": "Extremo derecho",
+    "CF": "Delantero centro",
+    "ST": "Delantero",
+    "referee": "Árbitro",
+    "assistant": "Árbitro asistente",
+    "fourth": "Cuarto árbitro",
+    "var": "VAR"
+  },
+  "events": {
+    "goal": "Gol",
+    "card": "Tarjeta",
+    "substitution": "Cambio",
+    "shot": "Remate",
+    "cooling-break": "Pausa de hidratación",
+    "ball-change": "Cambio de balón",
+    "pass": "Pase",
+    "cross": "Centro",
+    "dribble": "Regate",
+    "tackle": "Entrada",
+    "interception": "Intercepción",
+    "foul": "Falta",
+    "offside": "Fuera de juego",
+    "other": "Otro"
+  },
+  "goal_subtypes": {
+    "normal": "Jugada",
+    "penalty": "Penal",
+    "own_goal": "Autogol",
+    "free_kick": "Tiro libre",
+    "header": "Cabezazo"
+  },
+  "cards": {
+    "yellow": "Tarjeta amarilla",
+    "second_yellow": "Segunda amarilla",
+    "red": "Tarjeta roja"
+  },
+  "periods": {
+    "first_half": "Primer tiempo",
+    "second_half": "Segundo tiempo",
+    "extra_first": "Prórroga (primer tiempo)",
+    "extra_second": "Prórroga (segundo tiempo)",
+    "penalties": "Tanda de penales"
+  },
+  "ball_states": {
+    "in": "En juego",
+    "out_side": "Fuera (saque de banda)",
+    "out_back": "Fuera (línea de fondo)",
+    "goal": "Gol",
+    "set_piece": "Balón parado",
+    "kickoff": "Saque de centro"
+  },
+  "ui": {
+    "play": "Reproducir",
+    "pause": "Pausa",
+    "restart": "Reiniciar",
+    "halftime": "Medio tiempo",
+    "full_time": "Final",
+    "ratings": "Valoraciones",
+    "home": "Local",
+    "away": "Visitante",
+    "possession": "Posesión",
+    "lineups": "Alineaciones",
+    "timeline": "Cronología",
+    "stats": "Estadísticas",
+    "overview": "Información general"
+  }
+}

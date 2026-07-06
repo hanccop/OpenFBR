@@ -1,0 +1,91 @@
+{
+  "catalog": "fbr-i18n",
+  "version": "0.7",
+  "language": "it",
+  "do_not_translate": [
+    "player names",
+    "team names",
+    "stadium names",
+    "referee names"
+  ],
+  "roles": {
+    "GK": "Portiere",
+    "SW": "Libero",
+    "CB": "Difensore centrale",
+    "LB": "Terzino sinistro",
+    "RB": "Terzino destro",
+    "LWB": "Esterno sinistro",
+    "RWB": "Esterno destro",
+    "CDM": "Mediano difensivo",
+    "CM": "Centrocampista centrale",
+    "CAM": "Trequartista",
+    "LM": "Centrocampista sinistro",
+    "RM": "Centrocampista destro",
+    "LW": "Ala sinistra",
+    "RW": "Ala destra",
+    "CF": "Centravanti",
+    "ST": "Attaccante",
+    "referee": "Arbitro",
+    "assistant": "Assistente arbitrale",
+    "fourth": "Quarto uomo",
+    "var": "VAR"
+  },
+  "events": {
+    "goal": "Gol",
+    "card": "Cartellino",
+    "substitution": "Sostituzione",
+    "shot": "Tiro",
+    "cooling-break": "Pausa idratazione",
+    "ball-change": "Cambio pallone",
+    "pass": "Passaggio",
+    "cross": "Cross",
+    "dribble": "Dribbling",
+    "tackle": "Contrasto",
+    "interception": "Intercetto",
+    "foul": "Fallo",
+    "offside": "Fuorigioco",
+    "other": "Altro"
+  },
+  "goal_subtypes": {
+    "normal": "Su azione",
+    "penalty": "Rigore",
+    "own_goal": "Autogol",
+    "free_kick": "Punizione",
+    "header": "Colpo di testa"
+  },
+  "cards": {
+    "yellow": "Cartellino giallo",
+    "second_yellow": "Doppio giallo",
+    "red": "Cartellino rosso"
+  },
+  "periods": {
+    "first_half": "Primo tempo",
+    "second_half": "Secondo tempo",
+    "extra_first": "Primo supplementare",
+    "extra_second": "Secondo supplementare",
+    "penalties": "Calci di rigore"
+  },
+  "ball_states": {
+    "in": "In gioco",
+    "out_side": "Rimessa laterale",
+    "out_back": "Fondo campo",
+    "goal": "Gol",
+    "set_piece": "Palla inattiva",
+    "kickoff": "Calcio d’inizio"
+  },
+  "ui": {
+    "play": "Riproduci",
+    "pause": "Pausa",
+    "restart": "Ricomincia",
+    "halftime": "Intervallo",
+    "full_time": "Fine partita",
+    "ratings": "Valutazioni",
+    "home": "Casa",
+    "away": "Trasferta",
+    "possession": "Possesso palla",
+    "lineups": "Formazioni",
+    "timeline": "Cronologia",
+    "stats": "Statistiche",
+    "overview": "Informazioni"
+  }
+}

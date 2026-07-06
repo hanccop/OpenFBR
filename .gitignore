@@ -1,0 +1,32 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Node (si más adelante se agrega backend)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.env
+.env.*
+
+# Temporales y compilados
+*.log
+*.tmp
+dist/
+build/
+
+# Archivos pesados que no deberían ir al repo (subir por otro medio si hace falta)
+# propuesta/demo.mp4
+
+# Tarballs npm (se regeneran con npm pack)
+*.tgz
+
+# package-lock se regenera con npm ci
+package-lock.json

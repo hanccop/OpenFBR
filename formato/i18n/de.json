@@ -1,0 +1,91 @@
+{
+  "catalog": "fbr-i18n",
+  "version": "0.7",
+  "language": "de",
+  "do_not_translate": [
+    "player names",
+    "team names",
+    "stadium names",
+    "referee names"
+  ],
+  "roles": {
+    "GK": "Torwart",
+    "SW": "Libero",
+    "CB": "Innenverteidiger",
+    "LB": "Linksverteidiger",
+    "RB": "Rechtsverteidiger",
+    "LWB": "Linker Flügelverteidiger",
+    "RWB": "Rechter Flügelverteidiger",
+    "CDM": "Defensiver Mittelfeldspieler",
+    "CM": "Zentraler Mittelfeldspieler",
+    "CAM": "Offensiver Mittelfeldspieler",
+    "LM": "Linkes Mittelfeld",
+    "RM": "Rechtes Mittelfeld",
+    "LW": "Linksaußen",
+    "RW": "Rechtsaußen",
+    "CF": "Mittelstürmer",
+    "ST": "Stürmer",
+    "referee": "Schiedsrichter",
+    "assistant": "Schiedsrichterassistent",
+    "fourth": "Vierter Offizieller",
+    "var": "VAR"
+  },
+  "events": {
+    "goal": "Tor",
+    "card": "Karte",
+    "substitution": "Auswechslung",
+    "shot": "Schuss",
+    "cooling-break": "Trinkpause",
+    "ball-change": "Ballwechsel",
+    "pass": "Pass",
+    "cross": "Flanke",
+    "dribble": "Dribbling",
+    "tackle": "Tackling",
+    "interception": "Abfangen",
+    "foul": "Foul",
+    "offside": "Abseits",
+    "other": "Andere"
+  },
+  "goal_subtypes": {
+    "normal": "Aus dem Spiel",
+    "penalty": "Elfmeter",
+    "own_goal": "Eigentor",
+    "free_kick": "Freistoß",
+    "header": "Kopfball"
+  },
+  "cards": {
+    "yellow": "Gelbe Karte",
+    "second_yellow": "Gelb-Rot",
+    "red": "Rote Karte"
+  },
+  "periods": {
+    "first_half": "Erste Halbzeit",
+    "second_half": "Zweite Halbzeit",
+    "extra_first": "Verlängerung (1.)",
+    "extra_second": "Verlängerung (2.)",
+    "penalties": "Elfmeterschießen"
+  },
+  "ball_states": {
+    "in": "Im Spiel",
+    "out_side": "Aus (Einwurf)",
+    "out_back": "Aus (Torlinie)",
+    "goal": "Tor",
+    "set_piece": "Standardsituation",
+    "kickoff": "Anstoß"
+  },
+  "ui": {
+    "play": "Abspielen",
+    "pause": "Pause",
+    "restart": "Neu starten",
+    "halftime": "Halbzeit",
+    "full_time": "Spielende",
+    "ratings": "Bewertungen",
+    "home": "Heim",
+    "away": "Auswärts",
+    "possession": "Ballbesitz",
+    "lineups": "Aufstellungen",
+    "timeline": "Zeitverlauf",
+    "stats": "Statistiken",
+    "overview": "Spielinfo"
+  }
+}

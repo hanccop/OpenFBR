@@ -1,0 +1,91 @@
+{
+  "catalog": "fbr-i18n",
+  "version": "0.7",
+  "language": "pt",
+  "do_not_translate": [
+    "player names",
+    "team names",
+    "stadium names",
+    "referee names"
+  ],
+  "roles": {
+    "GK": "Goleiro",
+    "SW": "Líbero",
+    "CB": "Zagueiro",
+    "LB": "Lateral esquerdo",
+    "RB": "Lateral direito",
+    "LWB": "Ala esquerdo",
+    "RWB": "Ala direito",
+    "CDM": "Volante de contenção",
+    "CM": "Meio-campista",
+    "CAM": "Meia-atacante",
+    "LM": "Meia esquerda",
+    "RM": "Meia direita",
+    "LW": "Ponta esquerda",
+    "RW": "Ponta direita",
+    "CF": "Centroavante",
+    "ST": "Atacante",
+    "referee": "Árbitro",
+    "assistant": "Árbitro assistente",
+    "fourth": "Quarto árbitro",
+    "var": "VAR"
+  },
+  "events": {
+    "goal": "Gol",
+    "card": "Cartão",
+    "substitution": "Substituição",
+    "shot": "Chute",
+    "cooling-break": "Pausa para hidratação",
+    "ball-change": "Troca de bola",
+    "pass": "Passe",
+    "cross": "Cruzamento",
+    "dribble": "Drible",
+    "tackle": "Desarme",
+    "interception": "Interceptação",
+    "foul": "Falta",
+    "offside": "Impedimento",
+    "other": "Outro"
+  },
+  "goal_subtypes": {
+    "normal": "Bola rolando",
+    "penalty": "Pênalti",
+    "own_goal": "Gol contra",
+    "free_kick": "Falta",
+    "header": "Cabeceio"
+  },
+  "cards": {
+    "yellow": "Cartão amarelo",
+    "second_yellow": "Segundo amarelo",
+    "red": "Cartão vermelho"
+  },
+  "periods": {
+    "first_half": "Primeiro tempo",
+    "second_half": "Segundo tempo",
+    "extra_first": "Prorrogação (1º tempo)",
+    "extra_second": "Prorrogação (2º tempo)",
+    "penalties": "Disputa de pênaltis"
+  },
+  "ball_states": {
+    "in": "Em jogo",
+    "out_side": "Lateral",
+    "out_back": "Linha de fundo",
+    "goal": "Gol",
+    "set_piece": "Bola parada",
+    "kickoff": "Pontapé inicial"
+  },
+  "ui": {
+    "play": "Reproduzir",
+    "pause": "Pausa",
+    "restart": "Reiniciar",
+    "halftime": "Intervalo",
+    "full_time": "Fim de jogo",
+    "ratings": "Notas",
+    "home": "Mandante",
+    "away": "Visitante",
+    "possession": "Posse de bola",
+    "lineups": "Escalações",
+    "timeline": "Cronologia",
+    "stats": "Estatísticas",
+    "overview": "Informações"
+  }
+}

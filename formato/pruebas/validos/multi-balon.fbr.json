@@ -1,0 +1,86 @@
+{
+ "format": "fbr",
+ "version": "1.0",
+ "meta": {
+  "source": "manual",
+  "note": "Demo de la función opcional de varios balones."
+ },
+ "pitch": {
+  "length_m": 105,
+  "width_m": 68,
+  "coordinates": "normalized"
+ },
+ "teams": [
+  {
+   "id": "home",
+   "name": "Local"
+  },
+  {
+   "id": "away",
+   "name": "Visitante"
+  }
+ ],
+ "actors": [
+  {
+   "id": "BALL",
+   "type": "ball",
+   "active": {
+    "from": 0,
+    "to": 3120
+   }
+  },
+  {
+   "id": "BALL2",
+   "type": "ball",
+   "active": {
+    "from": 3120,
+    "to": 5580
+   }
+  }
+ ],
+ "time": {
+  "unit": "second",
+  "kickoff": 0,
+  "duration": 5580
+ },
+ "tracks": [
+  {
+   "actor": "BALL",
+   "keyframes": [
+    [
+     0,
+     0.5,
+     0.5
+    ],
+    [
+     3120,
+     1.15,
+     0.3
+    ]
+   ]
+  },
+  {
+   "actor": "BALL2",
+   "keyframes": [
+    [
+     3120,
+     0.5,
+     0.5
+    ],
+    [
+     5580,
+     0.6,
+     0.5
+    ]
+   ]
+  }
+ ],
+ "events": [
+  {
+   "t": 3120,
+   "type": "ball-change",
+   "detail": "Balón perdido fuera del estadio; entra balón nuevo."
+  }
+ ],
+ "schema_version": "1.0"
+}

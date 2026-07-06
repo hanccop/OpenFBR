@@ -1,0 +1,16 @@
+{
+  "name": "fbr-conformance",
+  "version": "1.0.0",
+  "description": "Batería de conformidad, validador y QA reproducible del formato FBR (Football Replay Format).",
+  "type": "module",
+  "scripts": {
+    "test": "node validate.mjs",
+    "qa:format": "python3 qa/qa_format.py",
+    "qa:sim": "node qa/qa_sim.cjs",
+    "qa": "node validate.mjs && python3 qa/qa_format.py && node qa/qa_sim.cjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}
