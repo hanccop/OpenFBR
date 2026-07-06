@@ -1,4 +1,5 @@
 # OpenFBR · Football Replay Format (FBR)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21212697.svg)](https://doi.org/10.5281/zenodo.21212697)
 
 **Un formato JSON abierto para reconstruir y reproducir el estado espacial de un partido de
 fútbol mediante *keyframes* dispersos e interpolación determinista.**
